@@ -11,5 +11,5 @@ for f in "$out"/*.png; do
   magick "$f" -resize 1200x -quality 80 "$name-1200.webp"
   rm "$f"
 done
-magick "$out/usinage-2400.webp" -resize 1200x630^ -gravity center -extent 1200x630 -quality 85 public/images/og.jpg
+magick "$out/usinage-dark-2400.webp" -resize 1200x630^ -gravity center -extent 1200x630 -quality 85 public/images/og.jpg
 ls -la "$out"

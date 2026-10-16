@@ -2325,25 +2325,25 @@ function drawSketch2D(){
   const kx0=Math.floor(gvx0/gstep),kx1=Math.ceil(gvx1/gstep),ky0=Math.floor(gvY0/gstep),ky1=Math.ceil(gvY1/gstep);
   if(kx1-kx0<600)for(let k=kx0;k<=kx1;k++){const gx=k*gstep,isAx=Math.abs(gx)<1e-9;
     const[x1,y1]=w2s(gx,gvY0-gstep),[x2,y2]=w2s(gx,gvY1+gstep);
-    skEl('line',{x1,y1,x2,y2,stroke:isAx?'#0a84ff':'#2a2a2e','stroke-width':isAx?1.5:1});}
+    skEl('line',{x1,y1,x2,y2,stroke:isAx?th('skBlue'):th('skGrid'),'stroke-width':isAx?1.5:1});}
   if(ky1-ky0<600)for(let k=ky0;k<=ky1;k++){const gy=k*gstep,isAx=Math.abs(gy)<1e-9;
     const[x1,y1]=w2s(gvx0-gstep,gy),[x2,y2]=w2s(gvx1+gstep,gy);
-    skEl('line',{x1,y1,x2,y2,stroke:isAx?'#0a84ff':'#2a2a2e','stroke-width':isAx?1.5:1});}
+    skEl('line',{x1,y1,x2,y2,stroke:isAx?th('skBlue'):th('skGrid'),'stroke-width':isAx?1.5:1});}
   // Fantôme 2D orthographique (pièce derrière, sans perspective) — bouge avec le zoom/pan comme Fusion
   // B : violet supprimé, fantôme seul et plus contrasté pour bien voir la pièce
   if((sk._ghost||[]).length){
     for(const r of sk._ghost){
       if(r.type==='circle'){
         const[a,b]=w2s(r.cx,r.cy);
-        skEl('circle',{cx:a,cy:b,r:r.r*skView.s,fill:'none',stroke:'#e6e6ee','stroke-width':1.15,opacity:0.42});
+        skEl('circle',{cx:a,cy:b,r:r.r*skView.s,fill:'none',stroke:th('skRef'),'stroke-width':1.15,opacity:0.42});
       } else if(r.type==='arc'){
         const[a,b]=w2s(r.x1,r.y1),[c,d]=w2s(r.x2,r.y2);
         let dd=r.a2-r.a1; while(dd<=0)dd+=Math.PI*2; while(dd>Math.PI*2)dd-=Math.PI*2;
-        skEl('path',{d:`M ${a} ${b} A ${r.r*skView.s} ${r.r*skView.s} 0 ${dd>Math.PI?1:0} 0 ${c} ${d}`,fill:'none',stroke:'#e6e6ee','stroke-width':1.15,opacity:0.42});
+        skEl('path',{d:`M ${a} ${b} A ${r.r*skView.s} ${r.r*skView.s} 0 ${dd>Math.PI?1:0} 0 ${c} ${d}`,fill:'none',stroke:th('skRef'),'stroke-width':1.15,opacity:0.42});
       } else {
         const[a,b]=w2s(r.x1,r.y1),[c,d]=w2s(r.x2,r.y2);
         if((a<-100&&c<-100)||(a>W+100&&c>W+100)||(b<-100&&d<-100)||(b>H+100&&d>H+100))continue;
-        skEl('line',{x1:a.toFixed(1),y1:b.toFixed(1),x2:c.toFixed(1),y2:d.toFixed(1),stroke:'#e6e6ee','stroke-width':1.15,opacity:0.42});
+        skEl('line',{x1:a.toFixed(1),y1:b.toFixed(1),x2:c.toFixed(1),y2:d.toFixed(1),stroke:th('skRef'),'stroke-width':1.15,opacity:0.42});
       }
     }
   }
@@ -2354,26 +2354,26 @@ function drawSketch2D(){
     for(let i=0;i<sk._refs.length;i++){const r=sk._refs[i];
       if(r.type==='circle'){
         const[a,b]=w2s(r.cx,r.cy);
-        skEl('circle',{cx:a,cy:b,r:r.r*skView.s,fill:'none',stroke:'#bf5af2','stroke-width':1,'stroke-dasharray':'5 4',opacity:0.5});
+        skEl('circle',{cx:a,cy:b,r:r.r*skView.s,fill:'none',stroke:th('skPurple'),'stroke-width':1,'stroke-dasharray':'5 4',opacity:0.5});
       } else if(r.type==='arc'){
         const[a,b]=w2s(r.cx+r.r*Math.cos(r.a1),r.cy+r.r*Math.sin(r.a1)),[c,d]=w2s(r.cx+r.r*Math.cos(r.a2),r.cy+r.r*Math.sin(r.a2));
         let dd=r.a2-r.a1; const TAU=Math.PI*2; dd=((dd%TAU)+TAU)%TAU; if(dd<1e-9)dd=TAU;
-        skEl('path',{d:`M ${a} ${b} A ${r.r*skView.s} ${r.r*skView.s} 0 ${dd>Math.PI?1:0} 0 ${c} ${d}`,fill:'none',stroke:'#bf5af2','stroke-width':1,'stroke-dasharray':'5 4',opacity:0.5});
+        skEl('path',{d:`M ${a} ${b} A ${r.r*skView.s} ${r.r*skView.s} 0 ${dd>Math.PI?1:0} 0 ${c} ${d}`,fill:'none',stroke:th('skPurple'),'stroke-width':1,'stroke-dasharray':'5 4',opacity:0.5});
       } else {
         const[a,b]=w2s(r.x1,r.y1),[c,d]=w2s(r.x2,r.y2);
         if((a<-60&&c<-60)||(a>W+60&&c>W+60)||(b<-60&&d<-60)||(b>H+60&&d>H+60))continue;
-        skEl('line',{x1:a.toFixed(1),y1:b.toFixed(1),x2:c.toFixed(1),y2:d.toFixed(1),stroke:'#bf5af2','stroke-width':1,'stroke-dasharray':'5 4',opacity:0.5});
+        skEl('line',{x1:a.toFixed(1),y1:b.toFixed(1),x2:c.toFixed(1),y2:d.toFixed(1),stroke:th('skPurple'),'stroke-width':1,'stroke-dasharray':'5 4',opacity:0.5});
       }
     }
   }
   // guides d'inférence H/V + ⟂/⦾
   if(skInfer){
-    if(skInfer.v){const[x]=w2s(skInfer.x,0);skEl('line',{x1:x,y1:0,x2:x,y2:H,stroke:'#bf5af2','stroke-width':1,'stroke-dasharray':'6 4'});}
-    if(skInfer.h){const[,y]=w2s(0,skInfer.y);skEl('line',{x1:0,y1:y,x2:W,y2:y,stroke:'#bf5af2','stroke-width':1,'stroke-dasharray':'6 4'});}
+    if(skInfer.v){const[x]=w2s(skInfer.x,0);skEl('line',{x1:x,y1:0,x2:x,y2:H,stroke:th('skPurple'),'stroke-width':1,'stroke-dasharray':'6 4'});}
+    if(skInfer.h){const[,y]=w2s(0,skInfer.y);skEl('line',{x1:0,y1:y,x2:W,y2:y,stroke:th('skPurple'),'stroke-width':1,'stroke-dasharray':'6 4'});}
     if(skInfer.perp){const l=entById(sk,skInfer.perp);if(l&&l.t==='line'){const A=sk.points[l.p1],B=sk.points[l.p2];
-      if(A&&B){const[a,b]=w2s(A.x,A.y),[c,d2]=w2s(B.x,B.y);skEl('line',{x1:a,y1:b,x2:c,y2:d2,stroke:'#ffd60a','stroke-width':3,opacity:0.9});}}}
+      if(A&&B){const[a,b]=w2s(A.x,A.y),[c,d2]=w2s(B.x,B.y);skEl('line',{x1:a,y1:b,x2:c,y2:d2,stroke:th('skYellow'),'stroke-width':3,opacity:0.9});}}}
     if(skInfer.tan){const c=entById(sk,skInfer.tan);if(c){const C=sk.points[c.pc];
-      if(C){const[a,b]=w2s(C.x,C.y);skEl('circle',{cx:a,cy:b,r:c.r*skView.s,fill:'none',stroke:'#ffd60a','stroke-width':3});}}}
+      if(C){const[a,b]=w2s(C.x,C.y);skEl('circle',{cx:a,cy:b,r:c.r*skView.s,fill:'none',stroke:th('skYellow'),'stroke-width':3});}}}
   }
   const fix=skFixed(sk);
   const showDof=skDofInfo(sk).dof>0; // flèches DOF tant que sous-contrainte (rang réel)
@@ -2382,7 +2382,7 @@ function drawSketch2D(){
   // blanc = entité entièrement déterminée (contraintes + cotes + points fixes) —
   // par ANALYSE DE RANG (avant : seules les entités aux points « fixes » blanchissaient).
   const DA=skDofInfo(sk);
-  const col=e=>selIds.has(e.id)?'#ff9f0a':(DA.entFull(e)?'#e8e8ea':'#64d2ff');
+  const col=e=>selIds.has(e.id)?th('skSel'):(DA.entFull(e)?th('skFull'):th('skUnder'));
   const wdt=e=>selIds.has(e.id)?3.5:2;
   const tangT=(e,C)=>{ // [{x,y}] : un sigle T par tangence, posé au point de contact sur le cercle/arc (Fusion360)
     const P=sk.points;
@@ -2408,20 +2408,20 @@ function drawSketch2D(){
   const badges=(names,sx,sy)=>{
     names.forEach((nmI,i)=>{
       const g=skEl('g',{transform:'translate('+(sx+i*17)+','+(sy-8)+')',class:'skbadge'});
-      skEl('rect',{x:0,y:0,width:16,height:16,rx:4,fill:'#16261b',stroke:'#30d158','stroke-width':1},g);
-      const ic=skEl('g',{transform:'translate(2,2) scale(0.5)',fill:'none',stroke:'#30d158','stroke-width':2.4,'stroke-linecap':'round','stroke-linejoin':'round',color:'#30d158'},g);
+      skEl('rect',{x:0,y:0,width:16,height:16,rx:4,fill:th('skOkBg'),stroke:th('skOk'),'stroke-width':1},g);
+      const ic=skEl('g',{transform:'translate(2,2) scale(0.5)',fill:'none',stroke:th('skOk'),'stroke-width':2.4,'stroke-linecap':'round','stroke-linejoin':'round',color:th('skOk')},g);
       try{ic.innerHTML=SK_ICONS[nmI]||'';}catch(e){}
     });
   };
   const drawT=(q)=>{const[tx,ty]=w2s(q.x,q.y);
-    const g=skEl('text',{x:tx+6,y:ty-6,fill:'#30d158','font-size':12,'font-weight':'bold'});g.textContent='T';};
+    const g=skEl('text',{x:tx+6,y:ty-6,fill:th('skOk'),'font-size':12,'font-weight':'bold'});g.textContent='T';};
   (sk.entities||[]).forEach(e=>{
     const P=sk.points;
     if(e.t==='line'){const A=P[e.p1],B=P[e.p2];if(!A||!B)return;
       const[a,b]=w2s(A.x,A.y),[c,d]=w2s(B.x,B.y);
       if(e.axis){ // axe de rotation : trait mixte (axe), prolongé, toujours visible
         const ux=(c-a),uy=(d-b),ul=Math.hypot(ux,uy)||1,ex2=ux/ul*30,ey2=uy/ul*30;
-        skEl('line',{x1:a-ex2,y1:b-ey2,x2:c+ex2,y2:d+ey2,stroke:selIds.has(e.id)?'#ff9f0a':'#ff9f0a','stroke-width':selIds.has(e.id)?2.6:1.6,'stroke-dasharray':'16 4 3 4',opacity:.95});
+        skEl('line',{x1:a-ex2,y1:b-ey2,x2:c+ex2,y2:d+ey2,stroke:selIds.has(e.id)?th('skSel'):th('skSel'),'stroke-width':selIds.has(e.id)?2.6:1.6,'stroke-dasharray':'16 4 3 4',opacity:.95});
       }else
       skEl('line',{x1:a,y1:b,x2:c,y2:d,stroke:col(e),'stroke-width':wdt(e),...(e.construction?{'stroke-dasharray':'7 5',opacity:.45}:{})});
       const hv=(sk.constraints||[]).filter(k=>(k.type==='h'||k.type==='v')&&k.line===e.id).map(k=>k.type.toUpperCase()).join('');
@@ -2445,8 +2445,8 @@ function drawSketch2D(){
           drawT({x:A.x+t2*ddx,y:A.y+t2*ddy});});}
     }
     if(e.t==='circle'){const C=P[e.pc];if(!C)return;const[a,b]=w2s(C.x,C.y);
-      skEl('circle',{cx:a,cy:b,r:Math.abs(e.r)*skView.s,fill:e.construction?'none':'rgba(100,210,255,.07)',stroke:col(e),'stroke-width':wdt(e),...(e.construction?{'stroke-dasharray':'7 5',opacity:.45}:{})});
-      const[px,py]=w2s(C.x,C.y);skEl('rect',{x:px-3,y:py-3,width:6,height:6,fill:fix.has(e.pc)?'#e8e8ea':'none',stroke:col(e)});
+      skEl('circle',{cx:a,cy:b,r:Math.abs(e.r)*skView.s,fill:e.construction?'none':th('skCircleFill'),stroke:col(e),'stroke-width':wdt(e),...(e.construction?{'stroke-dasharray':'7 5',opacity:.45}:{})});
+      const[px,py]=w2s(C.x,C.y);skEl('rect',{x:px-3,y:py-3,width:6,height:6,fill:fix.has(e.pc)?th('skFull'):'none',stroke:col(e)});
       tangT(e,C).forEach(drawT); // T au point de contact (un par tangence), pas au centre
       const cB=[];(sk.constraints||[]).forEach(k=>{if(k.type==='coaxial'&&(k.a===e.id||k.b===e.id))cB.push('coaxial');else if(k.type==='equal'&&(k.a===e.id||k.b===e.id))cB.push('equal');else if(k.type==='fix'&&k.ent===e.id)cB.push('fix');});
       if(cB.length)badges(Array.from(new Set(cB)),px+8,py-10);
@@ -2463,7 +2463,7 @@ function drawSketch2D(){
     }
     if(e.t==='cpoint'){const Q=P[e.p];if(!Q)return;const[a,b]=w2s(Q.x,Q.y);
       if(e.hole){ // centre de perçage : cercle + croix orange (distinct du point de construction)
-        const ch=selIds.has(e.id)?'#ff9f0a':'#ffb340';
+        const ch=selIds.has(e.id)?th('skSel'):th('skSel2');
         skEl('circle',{cx:a,cy:b,r:7,fill:'none',stroke:ch,'stroke-width':selIds.has(e.id)?2.6:1.8});
         skEl('path',{d:`M ${a-11} ${b} H ${a+11} M ${a} ${b-11} V ${b+11}`,stroke:ch,'stroke-width':1.2});
       }else skEl('path',{d:`M ${a-6} ${b} H ${a+6} M ${a} ${b-6} V ${b+6}`,stroke:col(e),'stroke-width':wdt(e)});}
@@ -2475,34 +2475,34 @@ function drawSketch2D(){
     const isMark=(skCoinA===pid)||(skPendPt===pid);
     if(pid===SK_ORIGIN){
       let used=0;(sk.entities||[]).forEach(e=>{if(e.p1===pid||e.p2===pid||e.p===pid||e.pc===pid||e.pa===pid||e.pb===pid)used++;});
-      const ring=used>=2?'#30d158':(isSel?'#ff9f0a':'#8e8e93');
-      skEl('circle',{cx:a,cy:b,r:5,fill:isSel?'#ff9f0a':'#e8e8ea',stroke:isSel?'#ff9f0a':'#8e8e93','stroke-width':1.5});
+      const ring=used>=2?th('skOk'):(isSel?th('skSel'):th('skMuted'));
+      skEl('circle',{cx:a,cy:b,r:5,fill:isSel?th('skSel'):th('skFull'),stroke:isSel?th('skSel'):th('skMuted'),'stroke-width':1.5});
       skEl('circle',{cx:a,cy:b,r:9,fill:'none',stroke:ring,'stroke-width':1.4,opacity:0.95});
-      if(isMark)skEl('circle',{cx:a,cy:b,r:13,fill:'none',stroke:'#ff9f0a','stroke-width':2,opacity:0.9});
+      if(isMark)skEl('circle',{cx:a,cy:b,r:13,fill:'none',stroke:th('skSel'),'stroke-width':2,opacity:0.9});
       return;
     }
-    skEl('rect',{x:a-4,y:b-4,width:8,height:8,fill:fix.has(pid)?'#e8e8ea':(isSel||isMark?'#ff9f0a':'#101012'),stroke:isSel?'#ff9f0a':(DA.ptFull(pid)?'#e8e8ea':'#64d2ff'),'stroke-width':1.5});
+    skEl('rect',{x:a-4,y:b-4,width:8,height:8,fill:fix.has(pid)?th('skFull'):(isSel||isMark?th('skSel'):th('skHalo')),stroke:isSel?th('skSel'):(DA.ptFull(pid)?th('skFull'):th('skUnder')),'stroke-width':1.5});
     let used=0;(sk.entities||[]).forEach(e=>{if(e.p1===pid||e.p2===pid||e.p===pid||e.pc===pid||e.pa===pid||e.pb===pid)used++;});
-    if(used>=2)skEl('circle',{cx:a,cy:b,r:6,fill:'none',stroke:'#30d158','stroke-width':1.2,opacity:0.9}); // coïncident
-    if(showDof&&!fix.has(pid))skEl('path',{d:`M ${a+7} ${b-7} h 7 m -3.5 -3.5 l 3.5 3.5 l -3.5 3.5`,fill:'none',stroke:'#30d158','stroke-width':1.4,opacity:0.85}); // DOF
+    if(used>=2)skEl('circle',{cx:a,cy:b,r:6,fill:'none',stroke:th('skOk'),'stroke-width':1.2,opacity:0.9}); // coïncident
+    if(showDof&&!fix.has(pid))skEl('path',{d:`M ${a+7} ${b-7} h 7 m -3.5 -3.5 l 3.5 3.5 l -3.5 3.5`,fill:'none',stroke:th('skOk'),'stroke-width':1.4,opacity:0.85}); // DOF
   });
   // santé : bouts ouverts (rouge + écart), auto-intersections (losanges orange)
   const HL=sk._health;
   if(HL){
     (HL.opens||[]).forEach(o=>{const[a,b]=w2s(o.x,o.y);
-      skEl('circle',{cx:a,cy:b,r:7,fill:'none',stroke:'#ff453a','stroke-width':2.5});});
+      skEl('circle',{cx:a,cy:b,r:7,fill:'none',stroke:th('skRed'),'stroke-width':2.5});});
     if(HL.gapPair&&HL.gapD<25){const[a,b]=w2s(HL.gapPair[0].x,HL.gapPair[0].y),[c,e2]=w2s(HL.gapPair[1].x,HL.gapPair[1].y);
-      skEl('line',{x1:a,y1:b,x2:c,y2:e2,stroke:'#ff453a','stroke-width':1.5,'stroke-dasharray':'4 3'});
-      const t=skEl('text',{x:(a+c)/2,y:(b+e2)/2-8,fill:'#ff453a','font-size':12,'font-weight':'bold'});t.textContent='⚠ '+HL.gapD.toFixed(1);}
+      skEl('line',{x1:a,y1:b,x2:c,y2:e2,stroke:th('skRed'),'stroke-width':1.5,'stroke-dasharray':'4 3'});
+      const t=skEl('text',{x:(a+c)/2,y:(b+e2)/2-8,fill:th('skRed'),'font-size':12,'font-weight':'bold'});t.textContent='⚠ '+HL.gapD.toFixed(1);}
     (HL.selfints||[]).forEach(o=>{const[a,b]=w2s(o.x,o.y);
-      skEl('path',{d:`M ${a} ${b-7} L ${a+7} ${b} L ${a} ${b+7} L ${a-7} ${b} Z`,fill:'none',stroke:'#ff9f0a','stroke-width':2});});
+      skEl('path',{d:`M ${a} ${b-7} L ${a+7} ${b} L ${a} ${b+7} L ${a-7} ${b} Z`,fill:'none',stroke:th('skSel'),'stroke-width':2});});
   }
   // marqueur de snap
-  if(skSnapMk){const[a,b]=w2s(skSnapMk.x,skSnapMk.y);skEl('circle',{cx:a,cy:b,r:7,fill:'none',stroke:'#ffd60a','stroke-width':2});}
+  if(skSnapMk){const[a,b]=w2s(skSnapMk.x,skSnapMk.y);skEl('circle',{cx:a,cy:b,r:7,fill:'none',stroke:th('skYellow'),'stroke-width':2});}
   // boîte de sélection rectangle
   if(skBox){
     const[a,b]=w2s(Math.min(skBox.x0,skBox.x1),Math.max(skBox.y0,skBox.y1));
-    skEl('rect',{x:a,y:b,width:Math.abs(skBox.x1-skBox.x0)*skView.s,height:Math.abs(skBox.y1-skBox.y0)*skView.s,fill:'rgba(10,132,255,.08)',stroke:'#0a84ff','stroke-width':1,'stroke-dasharray':'4 3'});
+    skEl('rect',{x:a,y:b,width:Math.abs(skBox.x1-skBox.x0)*skView.s,height:Math.abs(skBox.y1-skBox.y0)*skView.s,fill:th('skBoxFill'),stroke:th('skBlue'),'stroke-width':1,'stroke-dasharray':'4 3'});
   }
   // cotes
   drawSkDims(sk);
@@ -2511,62 +2511,62 @@ function drawSketch2D(){
     const pr=skProjectHover;
     if(pr.type==='circle'){
       const[a,b]=w2s(pr.cx,pr.cy);
-      skEl('circle',{cx:a,cy:b,r:pr.r*skView.s,fill:'none',stroke:'#ff9f0a','stroke-width':3,opacity:0.95});
-      skEl('circle',{cx:a,cy:b,r:4,fill:'#ff9f0a'});
+      skEl('circle',{cx:a,cy:b,r:pr.r*skView.s,fill:'none',stroke:th('skSel'),'stroke-width':3,opacity:0.95});
+      skEl('circle',{cx:a,cy:b,r:4,fill:th('skSel')});
     }else if(pr.type==='arc'){
       const a1=Math.atan2(pr.y1-pr.cy,pr.x1-pr.cx),a2=Math.atan2(pr.y2-pr.cy,pr.x2-pr.cx);
       let dd=a2-a1; while(dd<=0)dd+=Math.PI*2; while(dd>Math.PI*2)dd-=Math.PI*2;
       const[a,b]=w2s(pr.x1,pr.y1),[c,d]=w2s(pr.x2,pr.y2);
-      skEl('path',{d:`M ${a} ${b} A ${pr.r*skView.s} ${pr.r*skView.s} 0 ${dd>Math.PI?1:0} 0 ${c} ${d}`,fill:'none',stroke:'#ff9f0a','stroke-width':3,opacity:0.95});
-      const[ac,bc]=w2s(pr.cx,pr.cy); skEl('rect',{x:ac-3,y:bc-3,width:6,height:6,fill:'none',stroke:'#ff9f0a'});
+      skEl('path',{d:`M ${a} ${b} A ${pr.r*skView.s} ${pr.r*skView.s} 0 ${dd>Math.PI?1:0} 0 ${c} ${d}`,fill:'none',stroke:th('skSel'),'stroke-width':3,opacity:0.95});
+      const[ac,bc]=w2s(pr.cx,pr.cy); skEl('rect',{x:ac-3,y:bc-3,width:6,height:6,fill:'none',stroke:th('skSel')});
     }else if(pr.type==='line'){
       const[a,b]=w2s(pr.x1,pr.y1),[c,d]=w2s(pr.x2,pr.y2);
-      skEl('line',{x1:a,y1:b,x2:c,y2:d,stroke:'#ff9f0a','stroke-width':3,opacity:0.95});
-      skEl('circle',{cx:a,cy:b,r:4,fill:'#ff9f0a'}); skEl('circle',{cx:c,cy:d,r:4,fill:'#ff9f0a'});
+      skEl('line',{x1:a,y1:b,x2:c,y2:d,stroke:th('skSel'),'stroke-width':3,opacity:0.95});
+      skEl('circle',{cx:a,cy:b,r:4,fill:th('skSel')}); skEl('circle',{cx:c,cy:d,r:4,fill:th('skSel')});
     }
   }
   // brouillon + cote live (longueur/angle comme Fusion)
   if(skDraft){
     const d=skDraft;
     if(d.t==='line'){const[a,b]=w2s(d.x1,d.y1),[c2,d2]=w2s(d.x2,d.y2);
-      skEl('line',{x1:a,y1:b,x2:c2,y2:d2,stroke:'#fff','stroke-width':2,'stroke-dasharray':'5 3'});
+      skEl('line',{x1:a,y1:b,x2:c2,y2:d2,stroke:th('skInk'),'stroke-width':2,'stroke-dasharray':'5 3'});
       const L=Math.hypot(d.x2-d.x1,d.y2-d.y1);
       if(L>1e-6){
         const ang=(Math.atan2(d.y2-d.y1,d.x2-d.x1)*180/Math.PI+360)%360;
         const[mx,my]=w2s((d.x1+d.x2)/2,(d.y1+d.y2)/2);
-        const t=skEl('text',{x:mx,y:my-14,fill:'#ffd60a','font-size':13,'font-weight':'bold','text-anchor':'middle'});
+        const t=skEl('text',{x:mx,y:my-14,fill:th('skYellow'),'font-size':13,'font-weight':'bold','text-anchor':'middle'});
         t.textContent=L.toFixed(2)+' mm ∠ '+ang.toFixed(1)+'°';
-        if(skInfer&&skInfer.perp){const g=skEl('text',{x:mx+18,y:my+4,fill:'#ffd60a','font-size':15,'font-weight':'bold'});g.textContent='⟂';}
-        if(skInfer&&skInfer.tan){const g=skEl('text',{x:mx+18,y:my+4,fill:'#ffd60a','font-size':15,'font-weight':'bold'});g.textContent='⦾';}
+        if(skInfer&&skInfer.perp){const g=skEl('text',{x:mx+18,y:my+4,fill:th('skYellow'),'font-size':15,'font-weight':'bold'});g.textContent='⟂';}
+        if(skInfer&&skInfer.tan){const g=skEl('text',{x:mx+18,y:my+4,fill:th('skYellow'),'font-size':15,'font-weight':'bold'});g.textContent='⦾';}
       }}
     if(d.t==='slot'){
       const x0=Math.min(d.x1,d.x2),x1=Math.max(d.x1,d.x2),y0=Math.min(d.y1,d.y2),y1=Math.max(d.y1,d.y2),w=x1-x0,h=y1-y0;
       if(w>0.5&&h>0.5){
         if(w>h){const r=h/2,ym=(y0+y1)/2;const[a1,b1]=w2s(x0+r, y1),[c1,d1]=w2s(x1-r, y1),[a2,b2]=w2s(x0+r, y0),[c2,d2]=w2s(x1-r, y0);
-          skEl('line',{x1:a1,y1:b1,x2:c1,y2:d1,stroke:'#fff','stroke-width':2,'stroke-dasharray':'5 3'});
-          skEl('line',{x1:a2,y1:b2,x2:c2,y2:d2,stroke:'#fff','stroke-width':2,'stroke-dasharray':'5 3'});
+          skEl('line',{x1:a1,y1:b1,x2:c1,y2:d1,stroke:th('skInk'),'stroke-width':2,'stroke-dasharray':'5 3'});
+          skEl('line',{x1:a2,y1:b2,x2:c2,y2:d2,stroke:th('skInk'),'stroke-width':2,'stroke-dasharray':'5 3'});
           const[ac1,bc1]=w2s(x0+r, ym),[ac2,bc2]=w2s(x1-r, ym);
-          skEl('path',{d:`M ${a1} ${b1} A ${r*skView.s} ${r*skView.s} 0 0 0 ${a2} ${b2}`,fill:'none',stroke:'#fff','stroke-width':2,'stroke-dasharray':'5 3'});
-          skEl('path',{d:`M ${c1} ${d1} A ${r*skView.s} ${r*skView.s} 0 0 1 ${c2} ${d2}`,fill:'none',stroke:'#fff','stroke-width':2,'stroke-dasharray':'5 3'});
+          skEl('path',{d:`M ${a1} ${b1} A ${r*skView.s} ${r*skView.s} 0 0 0 ${a2} ${b2}`,fill:'none',stroke:th('skInk'),'stroke-width':2,'stroke-dasharray':'5 3'});
+          skEl('path',{d:`M ${c1} ${d1} A ${r*skView.s} ${r*skView.s} 0 0 1 ${c2} ${d2}`,fill:'none',stroke:th('skInk'),'stroke-width':2,'stroke-dasharray':'5 3'});
         } else {const r=w/2,xm=(x0+x1)/2;const[a1,b1]=w2s(x0, y0+r),[a2,b2]=w2s(x0, y1-r),[c1,d1]=w2s(x1, y0+r),[c2,d2]=w2s(x1, y1-r);
-          skEl('line',{x1:a1,y1:b1,x2:a2,y2:b2,stroke:'#fff','stroke-width':2,'stroke-dasharray':'5 3'});
-          skEl('line',{x1:c1,y1:d1,x2:c2,y2:d2,stroke:'#fff','stroke-width':2,'stroke-dasharray':'5 3'});
+          skEl('line',{x1:a1,y1:b1,x2:a2,y2:b2,stroke:th('skInk'),'stroke-width':2,'stroke-dasharray':'5 3'});
+          skEl('line',{x1:c1,y1:d1,x2:c2,y2:d2,stroke:th('skInk'),'stroke-width':2,'stroke-dasharray':'5 3'});
           const[ac1,bc1]=w2s(xm, y0+r),[ac2,bc2]=w2s(xm, y1-r);
-          skEl('path',{d:`M ${a1} ${b1} A ${r*skView.s} ${r*skView.s} 0 0 0 ${c1} ${d1}`,fill:'none',stroke:'#fff','stroke-width':2,'stroke-dasharray':'5 3'});
-          skEl('path',{d:`M ${a2} ${b2} A ${r*skView.s} ${r*skView.s} 0 0 1 ${c2} ${d2}`,fill:'none',stroke:'#fff','stroke-width':2,'stroke-dasharray':'5 3'});
+          skEl('path',{d:`M ${a1} ${b1} A ${r*skView.s} ${r*skView.s} 0 0 0 ${c1} ${d1}`,fill:'none',stroke:th('skInk'),'stroke-width':2,'stroke-dasharray':'5 3'});
+          skEl('path',{d:`M ${a2} ${b2} A ${r*skView.s} ${r*skView.s} 0 0 1 ${c2} ${d2}`,fill:'none',stroke:th('skInk'),'stroke-width':2,'stroke-dasharray':'5 3'});
         }
       }
     } else if(d.t==='rect'){const[a,b]=w2s(Math.min(d.x1,d.x2),Math.max(d.y1,d.y2));
-      skEl('rect',{x:a,y:b,width:Math.abs(d.x2-d.x1)*skView.s,height:Math.abs(d.y2-d.y1)*skView.s,fill:'rgba(255,255,255,.06)',stroke:'#fff','stroke-dasharray':'5 3'});
-      const t=skEl('text',{x:a+Math.abs(d.x2-d.x1)*skView.s/2,y:b+Math.abs(d.y2-d.y1)*skView.s/2,fill:'#ffd60a','font-size':13,'font-weight':'bold','text-anchor':'middle'});
+      skEl('rect',{x:a,y:b,width:Math.abs(d.x2-d.x1)*skView.s,height:Math.abs(d.y2-d.y1)*skView.s,fill:th('skInkFill'),stroke:th('skInk'),'stroke-dasharray':'5 3'});
+      const t=skEl('text',{x:a+Math.abs(d.x2-d.x1)*skView.s/2,y:b+Math.abs(d.y2-d.y1)*skView.s/2,fill:th('skYellow'),'font-size':13,'font-weight':'bold','text-anchor':'middle'});
       t.textContent=Math.abs(d.x2-d.x1).toFixed(1)+' × '+Math.abs(d.y2-d.y1).toFixed(1);}
-    if(d.t==='circle'){const[a,b]=w2s(d.cx,d.cy);skEl('circle',{cx:a,cy:b,r:d.r*skView.s,fill:'none',stroke:'#fff','stroke-dasharray':'5 3'});
-      const t=skEl('text',{x:a,y:b-d.r*skView.s-8,fill:'#ffd60a','font-size':13,'font-weight':'bold','text-anchor':'middle'});
+    if(d.t==='circle'){const[a,b]=w2s(d.cx,d.cy);skEl('circle',{cx:a,cy:b,r:d.r*skView.s,fill:'none',stroke:th('skInk'),'stroke-dasharray':'5 3'});
+      const t=skEl('text',{x:a,y:b-d.r*skView.s-8,fill:th('skYellow'),'font-size':13,'font-weight':'bold','text-anchor':'middle'});
       t.textContent='⌀'+(d.r*2).toFixed(2);}
     if(d.t==='arc'){const C=sk.points[d.pc];if(C){const p1={x:C.x+d.r*Math.cos(d.a1),y:C.y+d.r*Math.sin(d.a1)},p2={x:C.x+d.r*Math.cos(d.a2),y:C.y+d.r*Math.sin(d.a2)};
       const[a,b]=w2s(p1.x,p1.y),[c2,d2]=w2s(p2.x,p2.y);
       let dd=(d.a2-d.a1)%(Math.PI*2);if(dd<0)dd+=Math.PI*2;
-      skEl('path',{d:`M ${a} ${b} A ${d.r*skView.s} ${d.r*skView.s} 0 ${dd>Math.PI?1:0} 0 ${c2} ${d2}`,fill:'none',stroke:'#fff','stroke-dasharray':'5 3'});}}
+      skEl('path',{d:`M ${a} ${b} A ${d.r*skView.s} ${d.r*skView.s} 0 ${dd>Math.PI?1:0} 0 ${c2} ${d2}`,fill:'none',stroke:th('skInk'),'stroke-dasharray':'5 3'});}}
   }
   // saisie dynamique (tapez une longueur/angle puis Entrée)
   if(skDyn&&skDown){
@@ -2574,10 +2574,10 @@ function drawSketch2D(){
     const[sx,sy]=w2s(anchor.x,anchor.y);
     const label=(skDyn.mode==='len'?'L = ':'∠ = ')+(skDyn.buf||'')+(skDyn.mode==='len'?' mm':'°');
     const wpx=Math.max(70,label.length*8+18);
-    skEl('rect',{x:sx-wpx/2,y:sy-44,width:wpx,height:24,rx:5,fill:'#1e1e1e',stroke:'#0a84ff','stroke-width':1.5});
-    const t=skEl('text',{x:sx,y:sy-27,fill:'#fff','font-size':14,'font-weight':'bold','text-anchor':'middle'});
+    skEl('rect',{x:sx-wpx/2,y:sy-44,width:wpx,height:24,rx:5,fill:th('skLabelBg'),stroke:th('skBlue'),'stroke-width':1.5});
+    const t=skEl('text',{x:sx,y:sy-27,fill:th('skInk'),'font-size':14,'font-weight':'bold','text-anchor':'middle'});
     t.textContent=label;
-    const h=skEl('text',{x:sx,y:sy-50,fill:'#8a8f99','font-size':11,'text-anchor':'middle'});
+    const h=skEl('text',{x:sx,y:sy-50,fill:th('skMuted2'),'font-size':11,'text-anchor':'middle'});
     h.textContent='Tab angle/longueur · Entrée OK · Échap annule';
   }
   if(_skPrevCam) sketchSyncCamera();
@@ -2630,7 +2630,7 @@ function rdDraw(sk,d,st){
   }
   const ex=kx+L.side*(tw+10);
   skEl('line',{x1:kx,y1:ky,x2:ex,y2:ky,stroke:st,'stroke-width':1.2,'pointer-events':'none'}); // trait SOUS le texte
-  const t=skEl('text',{x:(kx+L.side*5).toFixed(1),y:(ky-4).toFixed(1),fill:st,'font-size':13,'font-weight':'bold',stroke:'#101012','stroke-width':3,'paint-order':'stroke','text-anchor':L.side>0?'start':'end',style:'cursor:move;pointer-events:all'});
+  const t=skEl('text',{x:(kx+L.side*5).toFixed(1),y:(ky-4).toFixed(1),fill:st,'font-size':13,'font-weight':'bold',stroke:th('skHalo'),'stroke-width':3,'paint-order':'stroke','text-anchor':L.side>0?'start':'end',style:'cursor:move;pointer-events:all'});
   t.textContent=str;t.dataset.dim=d.id;
   t.addEventListener('dblclick',ev=>{ev.stopPropagation();editDim(d.id);});
 }
@@ -2782,7 +2782,7 @@ function hitDimLabel(sk,px,py){ // px,py en pixels écran SVG → id de cote ou 
 function dimText(x,y,str,id){ // étiquette horizontale avec halo sombre (Ø/R)
   str=parDecor(id,str); // nom= / ƒx
   const[ax,ay]=w2s(x,y);
-  const t=skEl('text',{x:ax,y:ay-8,fill:'#30d158','font-size':13,'font-weight':'bold',stroke:'#101012','stroke-width':3,'paint-order':'stroke',style:'cursor:move;pointer-events:all',title:'Glisser pour déplacer · double-clic pour modifier'});
+  const t=skEl('text',{x:ax,y:ay-8,fill:th('skOk'),'font-size':13,'font-weight':'bold',stroke:th('skHalo'),'stroke-width':3,'paint-order':'stroke',style:'cursor:move;pointer-events:all',title:'Glisser pour déplacer · double-clic pour modifier'});
   t.textContent=str;
   t.addEventListener('dblclick',ev=>{ev.stopPropagation();editDim(id);});
   return t;
@@ -2797,7 +2797,7 @@ function dimTextOnLine(S,str,id){ // étiquette posée SUR la ligne de cote, ali
   if(deg>90.01)deg-=180;else if(deg<-90.01)deg+=180; // toujours lisible
   const rot=`rotate(${deg.toFixed(2)} ${sx.toFixed(1)} ${sy.toFixed(1)})`;
   const wpx=str.length*7.8+10;
-  const r=skEl('rect',{x:(sx-wpx/2).toFixed(1),y:(sy-11).toFixed(1),width:wpx,height:21,rx:2,fill:'#101012',transform:rot,style:'cursor:move',title:'Glisser = déplacer · double-clic = modifier'});
+  const r=skEl('rect',{x:(sx-wpx/2).toFixed(1),y:(sy-11).toFixed(1),width:wpx,height:21,rx:2,fill:th('skHalo'),transform:rot,style:'cursor:move',title:'Glisser = déplacer · double-clic = modifier'});
   const t=skEl('text',{x:sx.toFixed(1),y:(sy+4.5).toFixed(1),fill:skDimTxtCol,'font-size':13,'font-weight':'bold','text-anchor':'middle',transform:rot,style:'cursor:move;pointer-events:all'}); t.dataset.dim=id; r.dataset.dim=id;
   t.textContent=str;
   const ed=ev=>{ev.stopPropagation();editDim(id);};
@@ -2811,7 +2811,7 @@ function dimArrow(x,y,ux,uy,st,size){ // pointe (x,y) écran, axe (ux,uy) écran
   const bx=-uy*size*0.32,by=ux*size*0.32;
   skEl('path',{d:`M ${x.toFixed(1)} ${y.toFixed(1)} L ${(x-ux*size+bx).toFixed(1)} ${(y-uy*size+by).toFixed(1)} L ${(x-ux*size-bx).toFixed(1)} ${(y-uy*size-by).toFixed(1)} Z`,fill:st,stroke:'none','pointer-events':'none'});
 }
-let skDimTxtCol='#30d158';
+let skDimTxtCol=th('skOk');
 function skDimExt(sk,L,T,st){
   // Ligne d'attache : si le point T (bout de la cote) tombe HORS du segment L, la ligne
   // est prolongée depuis son extrémité la plus proche jusqu'au-delà de T.
@@ -2832,7 +2832,7 @@ function drawSkDims(sk){
     // 2026-10-16-001 : cotes pilotantes en vert, cotes de RÉFÉRENCE en gris avec la
     // valeur mesurée entre parenthèses.
     if(d.ref){const mv=skDimMeasure(sk,d);if(mv!=null&&isFinite(mv))d.value=mv;}
-    const st=selD?'#ff9f0a':(d.ref?'#8e8e93':'#30d158');
+    const st=selD?th('skSel'):(d.ref?th('skMuted'):th('skOk'));
     skDimTxtCol=st;
     const vtxt=v=>{const t=(d.dia?'Ø':'')+(d.dia?2*v:v).toFixed(2);return d.ref?'('+t+')':t;};
     const over=10/skView.s; // dépassement des lignes de rappel
@@ -2945,7 +2945,7 @@ function editDim(id){
   inp.value=parDimInputText(d); // « nom = expression » si nommée / ƒx
   inp.title='Valeur, expression (ƒx), ou « nom = valeur » pour nommer la cote';
   const wIn=Math.max(80,Math.min(260,8*inp.value.length+24));
-  inp.style.cssText=`position:absolute;left:${r.left+sx-wIn/2}px;top:${r.top+sy-14}px;width:${wIn}px;height:22px;font-size:12px;text-align:center;border:1px solid #0a84ff;border-radius:6px;background:#1e1e1e;color:#fff;z-index:50`;
+  inp.style.cssText=`position:absolute;left:${r.left+sx-wIn/2}px;top:${r.top+sy-14}px;width:${wIn}px;height:22px;font-size:12px;text-align:center;border:1px solid var(--primary);border-radius:6px;background:var(--field-bg);color:var(--text);z-index:50`;
   document.body.appendChild(inp);
   // 2026-10-16-001 : focus DIFFÉRÉ + blur ignoré 300 ms — le clic qui pose la cote
   // retirait le focus et validait aussitôt la saisie (« pas éditable de suite »).
@@ -3099,7 +3099,7 @@ function renderSkPanel(){
     const bad=wA&&wA.viol>0.05;
     const ic=document.createElement('span');ic.className='skli-ic';ic.innerHTML=skIcon((SK_CON[c.type]||{}).ic||'fix',15);d.appendChild(ic);
     const s=document.createElement('span');s.textContent=conDesc(sk,c)+(bad?`  ⚠±${wA.viol.toFixed(2)}`:'');s.style.flex='1';d.appendChild(s);
-    if(bad)d.style.borderColor='#ff453a';
+    if(bad)d.style.borderColor='var(--danger)';
     const x=document.createElement('span');x.className='x';x.textContent='✕';x.title='Retirer';
     x.onclick=ev=>{ev.stopPropagation();skPushUndo();sk.constraints=sk.constraints.filter(k=>k.id!==c.id);if(skSel&&skSel.id===c.id)skSel=null;solveSketch(sk);drawSketch2D();renderSkPanel();};
     d.appendChild(x);d.onclick=()=>{skSel={kind:'con',id:c.id};drawSketch2D();renderSkPanel();};cl.appendChild(d);
@@ -3113,7 +3113,7 @@ function renderSkPanel(){
     const badD=wD&&wD.viol>0.05;
     const icD=document.createElement('span');icD.className='skli-ic';icD.innerHTML=skIcon(SK_DIM_IC[d.type]||'dim',15);r.appendChild(icD);
     const s=document.createElement('span');s.textContent=dimDesc(sk,d)+(badD?`  ⚠±${wD.viol.toFixed(2)}`:'');s.style.flex='1';r.appendChild(s);
-    if(badD)r.style.borderColor='#ff453a';
+    if(badD)r.style.borderColor='var(--danger)';
     const x=document.createElement('span');x.className='x';x.textContent='✕';x.title='Retirer';
     x.onclick=ev=>{ev.stopPropagation();skPushUndo();sk.dims=sk.dims.filter(k=>k.id!==d.id);if(skSel&&skSel.id===d.id)skSel=null;drawSketch2D();renderSkPanel();};
     r.appendChild(x);

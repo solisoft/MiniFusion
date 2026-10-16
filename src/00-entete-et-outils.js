@@ -23,7 +23,7 @@
  * peut changer sans rien casser.
  */
 
-const APP_VER='2026-10-16-019';
+const APP_VER='2026-10-16-020';
 try{document.getElementById('appVer').textContent=APP_VER;}catch(e){}
 try{console.log('[MiniFusion] version '+APP_VER);}catch(e){}
 
@@ -254,7 +254,7 @@ function swatchRow(setHex,cls){
   COLOR_SWATCHES.forEach(h=>{
     const s=document.createElement('span');
     s.title='Couleur '+h;s.dataset.hex=h;
-    s.style.cssText='width:18px;height:18px;border-radius:50%;cursor:pointer;border:1px solid rgba(255,255,255,.5);background:'+h;
+    s.style.cssText='width:18px;height:18px;border-radius:50%;cursor:pointer;border:1px solid var(--ctrl-border);background:'+h;
     s.onclick=()=>setHex(parseInt(h.slice(1),16));
     row.appendChild(s);
   });
@@ -269,7 +269,7 @@ function swatchMark(row,hex){ // anneau blanc sur la pastille en cours (null = a
       const ch=row.children[i];
       if(!ch||!ch.style||!ch.dataset||!ch.dataset.hex)continue;
       const on=h&&String(ch.dataset.hex).toLowerCase()===h;
-      ch.style.boxShadow=on?'0 0 0 2px #fff':'none';
+      ch.style.boxShadow=on?'0 0 0 2px var(--text)':'none';
     }
   }catch(err){}
 }

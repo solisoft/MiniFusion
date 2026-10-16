@@ -34,8 +34,11 @@ def _capture_plan(user, name, path)
   plan
 end
 
+# The theme the editor and pages are shot in (the landing shows the matching set).
+capture_theme = "dark"
+
 def _shot(name)
-  screenshot("public/images/landing/" + name + ".png")
+  screenshot("public/images/landing/" + name + "-" + capture_theme + ".png")
 end
 
 # The 3D view alone: every panel hidden, the canvas over the whole page, the
@@ -55,7 +58,7 @@ end
 describe("landing captures") do
   viewport(1600, 1000, {"scale": 2})
 
-  test("shoots the editor and the plan list") do
+  test("shoots the editor and the plan list, in both themes") do
     return pending("MF_CAPTURE=1 pour régénérer public/images/landing/") if getenv("MF_CAPTURE").nil?
 
     user = _capture_user()
@@ -65,36 +68,37 @@ describe("landing captures") do
     pince = _capture_plan(user, "Pince", "Exemples/Pince.minifusion.json")
     piece = _capture_plan(user, "Pièce", "Exemples/Pièce.minifusion.json")
     cavite = _capture_plan(user, "Cavité usinage", "Exemples/Cavité Usinage.minifusion.json")
-
     login("atelier@minifusion.test", "atelier-minifusion")
-    visit("/plans")
-    expect(evaluate("location.pathname")).to_equal("/plans")
-    wait_for_text("Mes plans")
 
-    # Modelling: the most detailed part, framed by the editor itself.
-    expect(_cad_open(piece._key)).to_equal(true)
-    expect(_cad_wait("MF.plan.has_thumbnail", 60)).to_equal(true)
-    _shot_view("modele")
+    ["dark", "light"].each do |theme|
+      capture_theme = theme
+      visit("/plans")
+      evaluate("localStorage.setItem('minifusion_theme','#{theme}');true")
 
-    # A sketch with its constraints and dimensions.
-    expect(_cad_open(pince._key)).to_equal(true)
-    expect(_cad_wait("MF.plan.has_thumbnail", 60)).to_equal(true)
-    evaluate("openSketch(doc.sketches[0].id)")
-    sleep(3)
-    _shot("esquisse")
+      # Modelling: the most detailed part, the 3D view alone.
+      expect(_cad_open(piece._key)).to_equal(true)
+      expect(_cad_wait("MF.plan.has_thumbnail", 60)).to_equal(true)
+      _shot_view("modele")
 
-    # Machining: toolpaths of the 3D roughing, then the G-code they give.
-    expect(_cad_open(cavite._key)).to_equal(true)
-    expect(_cad_wait("MF.plan.has_thumbnail", 60)).to_equal(true)
-    evaluate("setTimeout(()=>{window.__gen=faoPreviewGenerate();},50);true")
-    expect(_cad_wait("window.__gen>0&&!faoMovesPending()", 120)).to_equal(true)
-    sleep(3)
-    _shot("usinage")
-    _shot_view("parcours")
-    gcode = evaluate("faoPost(faoDoc()).code.split('\\n').slice(0,40).join('\\n')")
-    File.write("public/images/landing/gcode.txt", gcode)
+      # A sketch with its constraints and dimensions.
+      expect(_cad_open(pince._key)).to_equal(true)
+      evaluate("openSketch(doc.sketches[0].id)")
+      sleep(3)
+      _shot("esquisse")
 
-    visit("/plans")
-    _shot("plans")
+      # Machining: toolpaths of the 3D roughing, then the G-code they give.
+      expect(_cad_open(cavite._key)).to_equal(true)
+      evaluate("setTimeout(()=>{window.__gen=faoPreviewGenerate();},50);true")
+      expect(_cad_wait("window.__gen>0&&!faoMovesPending()", 120)).to_equal(true)
+      sleep(3)
+      _shot("usinage")
+      _shot_view("parcours")
+      gcode = evaluate("faoPost(faoDoc()).code.split('\\n').slice(0,40).join('\\n')")
+      File.write("public/images/landing/gcode.txt", gcode)
+
+      visit("/plans")
+      sleep(1)
+      _shot("plans")
+    end
   end
 end

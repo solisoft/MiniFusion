@@ -175,7 +175,7 @@ function parFx(inp,h,k){
   if(ex||nm){inp.value=(nm?nm+' = ':'')+(ex||String(+parHolderVal(h,k).toFixed(4)).replace('.',','));
     inp.style.width=Math.max(parseInt(inp.style.width)||70,Math.min(240,8*inp.value.length+20))+'px';}
   inp.title=(inp.title?inp.title+' — ':'')+'ƒx : valeur, expression (L/2 + 3) ou « nom = valeur » pour la nommer';
-  if(h.exprErr&&h.exprErr[k])inp.style.borderColor='#ff9f0a';
+  if(h.exprErr&&h.exprErr[k])inp.style.borderColor='var(--orange)';
   const go=()=>{
     const s=String(inp.value).trim();
     if(inp._fxDone===s)return;
@@ -240,7 +240,7 @@ function openParamsDlg(){
   ov=document.createElement('div');ov.id='parDlg';
   ov.style.cssText='position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center';
   const box=document.createElement('div');
-  box.style.cssText='background:#1c1c20;color:#e8e8ea;border:1px solid #3a3a40;border-radius:10px;padding:14px 16px;min-width:560px;max-width:92vw;max-height:80vh;overflow:auto;font-size:13px;box-shadow:0 14px 40px rgba(0,0,0,.6)';
+  box.style.cssText='background:var(--menu-bg);color:var(--ovl-text);border:1px solid var(--ovl-border);border-radius:10px;padding:14px 16px;min-width:560px;max-width:92vw;max-height:80vh;overflow:auto;font-size:13px;box-shadow:0 14px 40px var(--shadow-strong)';
   ov.appendChild(box);
   const render=()=>{
     box.innerHTML='';
@@ -248,13 +248,13 @@ function openParamsDlg(){
     box.appendChild(h);
     const tbl=document.createElement('table');tbl.style.cssText='border-collapse:collapse;width:100%';
     tbl.innerHTML='<tr style="text-align:left;opacity:.7"><th style="padding:3px 6px">Nom</th><th style="padding:3px 6px">Expression</th><th style="padding:3px 6px">Valeur</th><th style="padding:3px 6px">Origine</th><th></th></tr>';
-    const inpCss='background:#101012;color:#fff;border:1px solid #3a3a40;border-radius:5px;padding:3px 6px;width:100%;box-sizing:border-box';
+    const inpCss='background:var(--well-bg);color:var(--text);border:1px solid var(--ovl-border);border-radius:5px;padding:3px 6px;width:100%;box-sizing:border-box';
     const row=(o)=>{
       const tr=document.createElement('tr');
       const td=()=>{const t=document.createElement('td');t.style.padding='3px 6px';tr.appendChild(t);return t;};
       const n=document.createElement('input');n.value=o.name||'';n.style.cssText=inpCss;n.placeholder='nom';td().appendChild(n);
       const x=document.createElement('input');x.value=o.expr;x.style.cssText=inpCss;td().appendChild(x);
-      const v=td();v.textContent=o.err?('⚠ '+o.err):(isFinite(o.val)?(+o.val.toFixed(4))+(o.unit||''):'');if(o.err)v.style.color='#ff9f0a';
+      const v=td();v.textContent=o.err?('⚠ '+o.err):(isFinite(o.val)?(+o.val.toFixed(4))+(o.unit||''):'');if(o.err)v.style.color='var(--orange)';
       td().textContent=o.origin;
       const del=td();
       if(o.del){const b=document.createElement('button');b.textContent='🗑';b.title='Supprimer';b.onclick=()=>{o.del();parAfterChange();render();};del.appendChild(b);}

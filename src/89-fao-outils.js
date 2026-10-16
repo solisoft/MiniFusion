@@ -138,13 +138,13 @@ function faoToolSvg(t){
   const xr=X(Math.max(g.dPo.v,D)/2)+14;
   dimV(0,g.lc.v,xr,'Lc '+g.lc.v,'#ff9f0a');
   if(g.lDeg.v>g.lc.v+1e-6)dimV(0,g.lDeg.v,xr+52,'Ldég '+g.lDeg.v,'#64d2ff');
-  dimV(0,g.lsm.v,xr+(g.lDeg.v>g.lc.v+1e-6?104:52),'Lsm '+g.lsm.v,'#e9e9ec');
+  dimV(0,g.lsm.v,xr+(g.lDeg.v>g.lc.v+1e-6?104:52),'Lsm '+g.lsm.v,'currentColor');
   // cote Ø au bout
   const yb=Y(0)+16;
   parts.push('<line x1="'+X(-r).toFixed(1)+'" y1="'+yb+'" x2="'+X(r).toFixed(1)+'" y2="'+yb+'" stroke="#ff9f0a" stroke-width="1"/>');
   parts.push('<text x="'+cx+'" y="'+(yb+13)+'" fill="#ff9f0a" font-size="11" text-anchor="middle">Ø'+D+(c2>0&&c2<r?(' R'+faoR1(c2)):'')+'</text>');
   parts.push('<text x="'+cx+'" y="'+(Y(g.lsm.v+holderH)-6).toFixed(1)+'" fill="#8e8e93" font-size="10" text-anchor="middle">mandrin Ø'+g.dPo.v+'</text>');
-  return '<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" style="display:block">'+parts.join('')+'</svg>';
+  return '<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" style="display:block;color:var(--ovl-text)">'+parts.join('')+'</svg>';
 }
 /* ----- bibliothèque : liste à gauche, fiche à droite ----- */
 let faoToolSelId=null;
@@ -316,7 +316,7 @@ function faoOpToolSection(setup,op){
     r.appendChild(inp);
     const tag=document.createElement('span');tag.className='fao-meta';
     tag.textContent=isOp?'opération':'fiche';
-    tag.style.color=isOp?'#ff9f0a':'';
+    tag.style.color=isOp?'var(--orange)':'';
     r.appendChild(tag);
     if(isOp)r.appendChild(faoMini('↺',function(){ if(op.cut){ delete op.cut[F[0]]; if(!Object.keys(op.cut).length)delete op.cut; } },
       'Revenir à la valeur de la fiche outil'));

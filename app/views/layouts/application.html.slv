@@ -2,6 +2,9 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <script>/* thème avant le rendu : choix mémorisé (partagé avec l'éditeur), sinon système */
+    (function(){var d=document.documentElement,s=null;try{s=localStorage.getItem('minifusion_theme');}catch(e){}
+    d.dataset.theme=(s==='light'||s==='dark')?s:((window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light');})();</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= @title %> · MiniFusion</title>
     <meta name="description" content="<%= @description ?? "Conception paramétrique et usinage, dans le navigateur." %>">
@@ -21,7 +24,8 @@
         <a href="/" class="flex items-center gap-2 no-underline text-ink font-cond font-semibold text-xl">
             <span aria-hidden="true" class="text-2xl leading-none">◧</span> MiniFusion
         </a>
-        <nav class="flex items-center gap-5">
+        <nav class="flex items-center gap-4 sm:gap-5">
+            <button type="button" class="theme-btn" id="themeBtn" aria-label="Basculer le thème clair / sombre"><span aria-hidden="true">◐</span></button>
             <% viewer = current_viewer() %>
             <% if viewer %>
                 <a href="/plans">Mes plans</a>
@@ -42,5 +46,22 @@
         <span>MiniFusion — conception et fabrication dans le navigateur.</span>
         <span>Noyau géométrique : Open CASCADE Technology (LGPL 2.1).</span>
     </footer>
+    <script>
+    (function(){
+      var d=document.documentElement,b=document.getElementById('themeBtn');
+      function sys(){return (window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}
+      function label(){if(!b)return;var dark=d.dataset.theme==='dark';b.firstElementChild.textContent=dark?'☀':'☾';
+        b.title=dark?'Passer en thème clair':'Passer en thème sombre';}
+      label();
+      if(b)b.addEventListener('click',function(){
+        var t=d.dataset.theme==='dark'?'light':'dark';d.dataset.theme=t;
+        try{if(t===sys())localStorage.removeItem('minifusion_theme');else localStorage.setItem('minifusion_theme',t);}catch(e){}
+        label();
+      });
+      if(window.matchMedia)matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){
+        var s=null;try{s=localStorage.getItem('minifusion_theme');}catch(e){}if(!s){d.dataset.theme=sys();label();}
+      });
+    })();
+    </script>
 </body>
 </html>

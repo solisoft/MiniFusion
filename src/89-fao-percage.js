@@ -505,7 +505,7 @@ function faoDrillSections(setup,op,d){
       // nature : reconnue (fonction Perçage) ou choisie (STEP) — trou lisse / taraudé
       const fe=g.holes.find(function(h){return h.feat;});
       if(fe&&fe.feat.thread){
-        const t=document.createElement('span');t.className='fao-meta';t.style.color='#ff9f0a';
+        const t=document.createElement('span');t.className='fao-meta';t.style.color='var(--orange)';
         t.textContent='taraudé '+holeThreadLabel(fe.feat.thread)+' (fonction Perçage)';r.appendChild(t);
       }else if(fe&&fe.feat.role==='lamage'){
         const t=document.createElement('span');t.className='fao-meta';t.textContent='lamage (fonction Perçage)';r.appendChild(t);

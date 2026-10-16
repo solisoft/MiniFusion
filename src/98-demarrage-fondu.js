@@ -24,7 +24,7 @@ function viewFadeIn(){
     if(wrap&&wrap.appendChild){
       veil=document.createElement('div');veil.id='bootVeil';
       veil.style.cssText='position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;z-index:5;color:var(--muted,#8e8e93);font-size:.85rem;transition:opacity .6s ease';
-      veil.innerHTML='<div style="width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,.12);border-top-color:#0a84ff;animation:bootSpin 1s linear infinite"></div><div>Chargement du noyau 3D…</div>';
+      veil.innerHTML='<div style="width:34px;height:34px;border-radius:50%;border:3px solid var(--ovl-border);border-top-color:var(--primary);animation:bootSpin 1s linear infinite"></div><div>Chargement du noyau 3D…</div>';
       const st=document.createElement('style');st.textContent='@keyframes bootSpin{to{transform:rotate(360deg)}}';
       try{document.head.appendChild(st);}catch(e){}
       wrap.appendChild(veil);

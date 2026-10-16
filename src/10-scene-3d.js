@@ -19,7 +19,7 @@ function makeStudioEnv(){
   return tex;
 }
 function buildScene(){
-  scene=new THREE.Scene(); scene.background=new THREE.Color(0x1c1c1e);
+  scene=new THREE.Scene(); scene.background=new THREE.Color(th('scene'));
   camera=new THREE.PerspectiveCamera(50,1.5,0.1,5000);
   camera.up.set(0,0,1); // convention CAO : Z vers le haut, Y vers l'arrière, X à droite
   camera.position.set(90,-90,90);
@@ -41,7 +41,7 @@ function buildScene(){
   mirrorRT=new THREE.WebGLRenderTarget(1024,1024);
   mirrorCam=new THREE.PerspectiveCamera();
   mirrorTexMat=new THREE.Matrix4();
-  mirrorU={color:{value:new THREE.Color(0x141519)},tDiffuse:{value:mirrorRT.texture},
+  mirrorU={color:{value:new THREE.Color(th('floor'))},tDiffuse:{value:mirrorRT.texture},
     textureMatrix:{value:mirrorTexMat},uCenter:{value:new THREE.Vector3()},uRadius:{value:1}};
   const fm=new THREE.ShaderMaterial({uniforms:mirrorU,
     vertexShader:'uniform mat4 textureMatrix; varying vec4 vUv; varying vec3 vWorld;\nvoid main(){ vec4 wp = modelMatrix * vec4(position, 1.0); vWorld = wp.xyz; vUv = textureMatrix * vec4(position, 1.0); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',

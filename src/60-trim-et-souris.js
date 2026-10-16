@@ -1029,11 +1029,11 @@ function showSkCtx(x,y){
     const b=document.createElement('button');
     const hit=CTX_IC.find(([k])=>label.indexOf(k)===0);
     const txt=hit?label.slice(label.indexOf(' ')+1):label;
-    b.style.cssText='display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:6px 10px;background:none;border:none;color:#fff;cursor:pointer;font-size:.82rem';
+    b.style.cssText='display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:6px 10px;background:none;border:none;color:var(--text);cursor:pointer;font-size:.82rem';
     if(hit){const ic=document.createElement('span');ic.className='skli-ic';ic.innerHTML=skIcon(hit[1],16);b.appendChild(ic);}
     const tx=document.createElement('span');tx.textContent=txt;b.appendChild(tx);
     if(typeof b.textContent!=='string'||!b.textContent)b.textContent=txt; /* DOM simulé des tests : pas d'agrégation des enfants */
-    b.onmouseenter=()=>b.style.background='rgba(255,255,255,.08)'; b.onmouseleave=()=>b.style.background='none'; b.onclick=()=>{ hideSkCtx(); fn(); }; m.appendChild(b);
+    b.onmouseenter=()=>b.style.background='var(--hover-bg)'; b.onmouseleave=()=>b.style.background='none'; b.onclick=()=>{ hideSkCtx(); fn(); }; m.appendChild(b);
   };
   let has=false;
   // construction : bascule hors profil (touche X)

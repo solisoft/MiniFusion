@@ -33,13 +33,13 @@ function openAide(){
   ov=document.createElement('div');ov.id='aideDlg';
   ov.style.cssText='position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center';
   const box=document.createElement('div');
-  box.style.cssText='background:#1c1c20;color:#e8e8ea;border:1px solid #3a3a40;border-radius:10px;padding:14px 18px;width:min(860px,94vw);max-height:84vh;overflow:auto;font-size:12.5px;box-shadow:0 14px 40px rgba(0,0,0,.6)';
+  box.style.cssText='background:var(--menu-bg);color:var(--ovl-text);border:1px solid var(--ovl-border);border-radius:10px;padding:14px 18px;width:min(860px,94vw);max-height:84vh;overflow:auto;font-size:12.5px;box-shadow:0 14px 40px var(--shadow-strong)';
   const ver=(document.getElementById('prodVer')||{}).textContent||'';
   let h='<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><b style="font-size:15px">❔ Aide — raccourcis et astuces</b><span style="opacity:.6">'+ver+' · '+(typeof APP_VER!=='undefined'?APP_VER:'')+'</span><span style="flex:1"></span><button id="aideClose">Fermer</button></div>';
   h+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:12px">';
   AIDE_SECTIONS.forEach(([titre,rows])=>{
-    h+='<div><div style="font-weight:700;color:#ff9f0a;margin:4px 0 4px">'+titre+'</div><table style="border-collapse:collapse;width:100%">';
-    rows.forEach(([k,t])=>{h+='<tr><td style="padding:2px 8px 2px 0;white-space:nowrap;vertical-align:top"><kbd style="background:#2c2c32;border:1px solid #44444c;border-radius:4px;padding:0 5px;font-size:11.5px">'+k+'</kbd></td><td style="padding:2px 0;opacity:.9">'+t+'</td></tr>';});
+    h+='<div><div style="font-weight:700;color:var(--orange);margin:4px 0 4px">'+titre+'</div><table style="border-collapse:collapse;width:100%">';
+    rows.forEach(([k,t])=>{h+='<tr><td style="padding:2px 8px 2px 0;white-space:nowrap;vertical-align:top"><kbd style="background:var(--kbd-bg);border:1px solid var(--ovl-border);border-radius:4px;padding:0 5px;font-size:11.5px">'+k+'</kbd></td><td style="padding:2px 0;opacity:.9">'+t+'</td></tr>';});
     h+='</table></div>';
   });
   h+='</div><div style="opacity:.6;margin-top:10px">F1 (hors esquisse) ou « ? » rouvrent cette aide · Échap ou clic hors de la fenêtre pour fermer.</div>';

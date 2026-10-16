@@ -24,10 +24,13 @@
 
     <figure class="relative max-w-[1400px] mx-auto px-3 sm:px-8 mt-12 sm:mt-16">
         <div class="sheet p-1.5 sm:p-2.5">
-            <img src="/images/landing/usinage-1200.webp"
-                 srcset="/images/landing/usinage-1200.webp 1200w, /images/landing/usinage-2400.webp 2400w"
-                 sizes="(min-width: 1400px) 1340px, 100vw" width="2400" height="1500"
-                 alt="L'éditeur MiniFusion : une cavité en cours d'usinage, les parcours de surfaçage et d'ébauche 3D tracés sur la pièce, l'arborescence des fonctions à gauche et les posages FAO à droite.">
+            <%- landing_img(
+                "usinage",
+                "L'éditeur MiniFusion : une cavité en cours d'usinage, les parcours de surfaçage et " +
+                  "d'ébauche 3D tracés sur la pièce, l'arborescence des fonctions à gauche " +
+                  "et les posages FAO à droite.",
+                "(min-width: 1400px) 1340px, 100vw"
+            ) %>
         </div>
         <dl class="cartouche grid-cols-2 mt-4 mx-auto max-w-[34rem] lg:absolute lg:right-14 lg:-bottom-12 lg:mt-0 lg:w-[30rem]">
             <div><dt>Désignation</dt><dd>Cavité usinage</dd></div>
@@ -55,9 +58,12 @@
                     </p>
                 </div>
                 <div class="sheet p-1.5">
-                    <img src="/images/landing/esquisse-1200.webp" srcset="/images/landing/esquisse-1200.webp 1200w, /images/landing/esquisse-2400.webp 2400w"
-                         sizes="(min-width: 1024px) 860px, 100vw" width="2400" height="1500" loading="lazy"
-                         alt="Une esquisse en cours d'édition : le profil coté (70, 50, 100, 190 mm), la liste des contraintes et des cotes à droite.">
+                    <%- landing_img(
+                        "esquisse",
+                        "Une esquisse en cours d'édition : le profil coté (70, 50, 100, 190 mm), la " +
+                          "liste des contraintes et des cotes à droite.",
+                        "(min-width: 1024px) 860px, 100vw"
+                    ) %>
                 </div>
             </li>
             <li class="grid gap-6 lg:gap-12 lg:grid-cols-[21rem_minmax(0,1fr)] items-start">
@@ -71,9 +77,12 @@
                     </p>
                 </div>
                 <div class="sheet p-1.5">
-                    <img src="/images/landing/modele-1200.webp" srcset="/images/landing/modele-1200.webp 1200w, /images/landing/modele-2400.webp 2400w"
-                         sizes="(min-width: 1024px) 860px, 100vw" width="2400" height="1500" loading="lazy"
-                         alt="Une pièce creuse modélisée : poches latérales, perçages et congés sur toutes les arêtes.">
+                    <%- landing_img(
+                        "modele",
+                        "Une pièce creuse modélisée : poches latérales, perçages " +
+                        "et congés sur toutes les arêtes.",
+                        "(min-width: 1024px) 860px, 100vw"
+                    ) %>
                 </div>
             </li>
             <li class="grid gap-6 lg:gap-12 lg:grid-cols-[21rem_minmax(0,1fr)] items-start">
@@ -86,9 +95,12 @@
                     </p>
                 </div>
                 <div class="sheet p-1.5">
-                    <img src="/images/landing/parcours-1200.webp" srcset="/images/landing/parcours-1200.webp 1200w, /images/landing/parcours-2400.webp 2400w"
-                         sizes="(min-width: 1024px) 860px, 100vw" width="2400" height="1500" loading="lazy"
-                         alt="Les parcours d'outil d'une ébauche 3D dans une cavité : passes en bleu et vert, dégagements en orange.">
+                    <%- landing_img(
+                        "parcours",
+                        "Les parcours d'outil d'une ébauche 3D dans une cavité : passes en bleu et " +
+                          "vert, dégagements en orange.",
+                        "(min-width: 1024px) 860px, 100vw"
+                    ) %>
                 </div>
             </li>
             <li class="grid gap-6 lg:gap-12 lg:grid-cols-[21rem_minmax(0,1fr)] items-start">
@@ -122,9 +134,12 @@
             </p>
         </div>
         <div class="sheet p-1.5">
-            <img src="/images/landing/plans-1200.webp" srcset="/images/landing/plans-1200.webp 1200w, /images/landing/plans-2400.webp 2400w"
-                 sizes="(min-width: 1024px) 700px, 100vw" width="2400" height="1500" loading="lazy"
-                 alt="La page Mes plans : trois pièces avec leur aperçu et leur cartouche (désignation, date de modification, taille).">
+            <%- landing_img(
+                "plans",
+                "La page Mes plans : trois pièces avec leur aperçu et leur cartouche (désignation, " +
+                  "date de modification, taille).",
+                "(min-width: 1024px) 700px, 100vw"
+            ) %>
         </div>
     </section>
 

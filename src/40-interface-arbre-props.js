@@ -7,9 +7,9 @@ let repMode=null;
   try{
     if(typeof document==='undefined'||document.getElementById('cssRepSrc'))return;
     const st=document.createElement('style');st.id='cssRepSrc';
-    st.textContent='.repsrc{font-size:.72rem;font-weight:700;margin-left:4px;color:#7ee0c0;}'+
-      '.repsrc.vide{color:#ff9f6e;}'+
-      '.srcmark{color:#7ee0c0;font-weight:700;margin-right:2px;}';
+    st.textContent='.repsrc{font-size:.72rem;font-weight:700;margin-left:4px;color:var(--teal);}'+
+      '.repsrc.vide{color:var(--orange);}'+
+      '.srcmark{color:var(--teal);font-weight:700;margin-right:2px;}';
     (document.head||document.body||document.documentElement).appendChild(st);
   }catch(e){}
 })();
@@ -279,7 +279,7 @@ function renderTimeline(){
   doc.features.forEach((f,i)=>{
     const c=document.createElement('span');c.className='chip';c.textContent=`${i+1} · ${f.name}`;
     c.title='Clic = sélectionner';c.onclick=()=>{sel={kind:'feature',id:f.id};renderTree();renderProps();refreshParts();};
-    if(f.type==='extrude'&&(f.op||'add')==='cut'){c.style.borderColor='#ff453a';c.style.background='rgba(255,69,58,.18)';c.title='Découpe (soustractive) — clic = sélectionner';}
+    if(f.type==='extrude'&&(f.op||'add')==='cut'){c.style.borderColor='var(--danger)';c.style.background='rgba(255,69,58,.18)';c.title='Découpe (soustractive) — clic = sélectionner';}
     tl.appendChild(c);
   });
   if(!doc.features.length)tl.innerHTML='<span class="note">Vide — créez une esquisse puis une extrusion.</span>';
@@ -1182,7 +1182,7 @@ p.appendChild(toggleBtn('👁 Visible',f.visible!==false,v=>{f.visible=v;doc.fea
       if(f._m)p.appendChild(info(f._m.m>=f._m.t?`✅ ${f._m.m}/${f._m.t} arêtes retrouvées`:`⚠ ${f._m.m}/${f._m.t} arêtes retrouvées — cliquez « Modifier la sélection » (✏️)`));
       // Échec géométrique (pas d'arête introuvable, mais le rayon refusé par OCCT) : on dit
       // POURQUOI et QUOI faire, sinon la fonction est simplement « en rouge » sans explication.
-      if(f._err){const e=document.createElement('div');e.style.cssText='font-size:.83rem;color:#ff6b60;background:rgba(255,69,58,.09);border:1px solid rgba(255,69,58,.3);border-radius:6px;padding:5px 7px;margin-top:6px';e.textContent='⚠ '+f._err;p.appendChild(e);}
+      if(f._err){const e=document.createElement('div');e.style.cssText='font-size:.83rem;color:var(--danger);background:rgba(255,69,58,.09);border:1px solid rgba(255,69,58,.3);border-radius:6px;padding:5px 7px;margin-top:6px';e.textContent='⚠ '+f._err;p.appendChild(e);}
       const lst=document.createElement('div');lst.className='col';lst.style.marginTop='6px';lst.style.maxHeight='180px';lst.style.overflow='auto';
       (f.edges||[]).forEach((s,i)=>{
         const r=document.createElement('div');r.className='tnode';

@@ -3983,3 +3983,10 @@ Vérifié au navigateur (démo → Mes plans → Crochet : vignette, renommage e
 - **Bienvenue** : un e-mail à l'inscription, lien vers « Mes plans ».
 - Envoi par le mailer Soli (`AccountMailer`) : variables `SOLI_SMTP_*`, ou `SMTP_*` classiques (`config/application.sl`) ; `APP_URL` donne l'adresse des liens. Sans SMTP en dev : boîte `/__soli/inbox`.
 Vérifié par curl en dev (lien reçu dans la boîte, 422 si trop court, lien inutilisable une seconde fois, connexion avec le nouveau mot de passe). Migration : `APP_VER` → `2026-10-16-019` ; badge **V0.1.57 → V0.1.58**.
+
+## 2026-10-16-020 · V0.1.59 — Thème clair / sombre (pages et éditeur)
+- **Demande** : un thème light & dark, éditeur compris ; suit le système, avec un bouton.
+- **Choix du thème** : posé avant le premier rendu (script de tête) sur `<html data-theme>` — choix mémorisé (`localStorage['minifusion_theme']`, partagé entre pages et éditeur, suivi d'un onglet à l'autre), sinon réglage du système (suivi en direct). Bouton ☀/☾ dans l'en-tête des pages et à côté du logo de l'éditeur ; revenir au thème du système efface le choix.
+- **Éditeur** : coquille CSS en variables (`--ovl-bg`, `--ctrl-bg`, `--ok`…), sombre par défaut, surchargées sous `[data-theme=light]` ; CSS injecté par le JS (FAO, aide, ƒx, bandeau, menus, voile de démarrage) converti aux mêmes variables. L'esquisse SVG et la scène 3D (fond, sol miroir) passent par la palette JS `th('clé')` (`src/02-theme.js`) et se repeignent à la bascule.
+- **Pages publiques** : palette sombre « feuille d'encre » (mêmes tokens Tailwind), champs, erreurs, bouton. Les captures de la landing existent par thème (`*-dark-*`, `*-light-*`) ; tant que les claires ne sont pas générées (`bin/landing-images`), les sombres servent dans les deux thèmes.
+Reste à faire : jaunes 3D du brut FAO (`0xffd60a`, `src/88-fao.js`) peu contrastés sur fond clair. Vérifié au navigateur (landing claire / sombre, bascule et mémorisation ; éditeur clair sur « Cavité usinage »). `SYNTAXE OK`, badge conforme. Migration : `APP_VER` → `2026-10-16-020` ; badge **V0.1.58 → V0.1.59**.

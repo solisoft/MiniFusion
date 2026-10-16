@@ -33,3 +33,18 @@ def plan_size(bytes) -> String
 
   str((count / 1048576.0).round(1)).replace(".", ",") + " Mo"
 end
+
+# A landing capture in both themes (bin/landing-images): the CSS shows the one
+# matching <html data-theme>, and the hidden one is never fetched (lazy). A
+# theme without its capture yet falls back to the dark one.
+def landing_img(name: String, alt: String, sizes: String) -> String
+  has_light = File.exists("public/images/landing/#{name}-light-1200.webp")
+  themes = has_light ? ["dark", "light"] : ["dark"]
+  themes.map do |theme|
+    base = "/images/landing/#{name}-#{theme}"
+    css = has_light ? "only-#{theme}" : ""
+    "<img class=\"#{css}\" src=\"#{base}-1200.webp\" " +
+      "srcset=\"#{base}-1200.webp 1200w, #{base}-2400.webp 2400w\" sizes=\"#{sizes}\" " +
+      "width=\"2400\" height=\"1500\" loading=\"lazy\" alt=\"#{html_escape(alt)}\">"
+  end.join("")
+end

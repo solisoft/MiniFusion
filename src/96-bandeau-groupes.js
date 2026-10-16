@@ -19,7 +19,7 @@
   const top=document.querySelector('.topbar')||bar.parentNode;
   if(!Array.from((top&&top.children)||[]).some(c=>c&&c.id==='prodVer')){
     const v=document.createElement('span');
-    v.id='prodVer';v.textContent='V0.1.58';v.title='Version produit';
+    v.id='prodVer';v.textContent='V0.1.59';v.title='Version produit';
     const hints=document.querySelector('.hints');
     if(top&&hints&&hints.parentNode===top)top.insertBefore(v,hints);
     else if(top)top.appendChild(v);
@@ -36,7 +36,7 @@
       '.dd{position:relative}',
       '.dd>.ddBtn::after{content:"\\25BE";font-size:.62em;opacity:.65;margin-left:5px;vertical-align:1px}',
       '.ddMenu{display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:6000;min-width:238px;padding:4px;',
-      '  background:rgba(28,28,32,.97);border:1px solid var(--border);border-radius:9px;box-shadow:0 12px 34px rgba(0,0,0,.55)}',
+      '  background:var(--ctx-bg);border:1px solid var(--border);border-radius:9px;box-shadow:0 12px 34px var(--shadow-strong)}',
       '.dd.open>.ddMenu{display:block}',
       '.ddMenu button{display:block;width:100%;text-align:left;background:none;border:none;padding:7px 10px;',
       '  border-radius:6px;cursor:pointer;color:inherit;font-size:.82rem;line-height:1.35}',
@@ -44,7 +44,7 @@
       '.ddMenu button i{font-style:normal;opacity:.85;margin-right:7px}',
       '.ddMenu .ddSep{width:auto;height:1px;margin:4px 6px;background:var(--border)}',
       '.ddMenu .ddLab{padding:7px 10px 3px;font-size:.66rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}',
-      '#prodVer{margin-left:auto;font-size:.68rem;font-weight:700;letter-spacing:.03em;padding:3px 10px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);white-space:nowrap}'
+      '#prodVer{margin-left:auto;font-size:.68rem;font-weight:700;letter-spacing:.03em;padding:3px 10px;border-radius:20px;border:1px solid var(--border);background:var(--ctrl-bg);color:var(--text);white-space:nowrap}'
     ].join('\n');
     document.head.appendChild(st);
   }
