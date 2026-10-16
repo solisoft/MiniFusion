@@ -20,6 +20,7 @@ class RegistrationsController < ApplicationController
       return render("registrations/new", {}, {"status": 422})
     end
 
+    AccountMailer.welcome(user, ApplicationController.app_url() + "/plans").deliver_now rescue nil
     session_regenerate()
     session_set("viewer", user.to_viewer)
     @_notice("success", "Bienvenue sur MiniFusion, #{user.to_viewer["first_name"]} !")

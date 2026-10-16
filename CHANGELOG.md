@@ -3976,3 +3976,10 @@ Vérifié au navigateur (`https://fusion.solisoft.test/editor` : OCCT prêt, auc
 - **Landing** (`/`) : vocabulaire de la mise en plan (feuille, cartouche, repères) ; captures réelles de l'éditeur produites par `bin/landing-images` (Chrome headless via `soli test --browser`), extrait réel du G-code de la cavité.
 - **Compte de démo** : `db/seeds/demo.sl` (7 pièces d'`Exemples/`, idempotent), bouton « Essayer la démo » sur la landing et la page de connexion.
 Vérifié au navigateur (démo → Mes plans → Crochet : vignette, renommage enregistré, conflit 409 résolu, import STEP rejoué depuis le serveur après purge du cache local) et par curl (401 / 404 / 409 / 422). Suite Node 96/96. Migration : `APP_VER` → `2026-10-16-018` ; badge **V0.1.56 → V0.1.57**.
+
+## 2026-10-16-019 · V0.1.58 — Mot de passe oublié, e-mail de bienvenue
+- **Demande** : envoyer les e-mails du compte par SMTP (identifiants d'une app déjà configurée).
+- **Mot de passe oublié** : « Mot de passe oublié ? » sous la connexion → lien à usage unique valable 2 h (seul le SHA-256 du jeton est stocké), même réponse que l'adresse ait un compte ou non ; le compte de démo n'en reçoit pas.
+- **Bienvenue** : un e-mail à l'inscription, lien vers « Mes plans ».
+- Envoi par le mailer Soli (`AccountMailer`) : variables `SOLI_SMTP_*`, ou `SMTP_*` classiques (`config/application.sl`) ; `APP_URL` donne l'adresse des liens. Sans SMTP en dev : boîte `/__soli/inbox`.
+Vérifié par curl en dev (lien reçu dans la boîte, 422 si trop court, lien inutilisable une seconde fois, connexion avec le nouveau mot de passe). Migration : `APP_VER` → `2026-10-16-019` ; badge **V0.1.57 → V0.1.58**.

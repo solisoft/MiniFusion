@@ -10,6 +10,10 @@ get("/login", "sessions#new", name: "login")
 post("/login", "sessions#create")
 post("/login/demo", "sessions#demo", name: "demo_login")
 post("/logout", "sessions#destroy", name: "logout")
+get("/password/forgot", "passwords#new", name: "forgot_password")
+post("/password/forgot", "passwords#create")
+get("/password/reset/:token", "passwords#edit")
+post("/password/reset/:token", "passwords#update")
 
 # "Mes plans" and the CAD editor
 get("/plans", "plans#index", name: "plans")

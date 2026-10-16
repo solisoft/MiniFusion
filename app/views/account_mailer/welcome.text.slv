@@ -1,0 +1,5 @@
+Bonjour <%= @name %>,
+
+Votre compte MiniFusion est prêt. Vos plans sont enregistrés en ligne et vous suivent d'un poste à l'autre.
+
+Ouvrir mes plans : <%= @link %>

@@ -48,6 +48,13 @@ class ApplicationController < Controller
     by_field
   end
 
+  # The public address links in e-mails point to (APP_URL in .env).
+  static def app_url -> String
+    url = getenv("APP_URL").to_s
+    url = "http://localhost:5011" if url.blank?
+    url.ends_with("/") ? url.substring(0, url.length - 1) : url
+  end
+
   static def in_french(message: String) -> String
     return "est obligatoire" if message == "can't be blank"
     return "n'est pas valide" if message == "is invalid"

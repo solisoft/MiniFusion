@@ -110,3 +110,22 @@
 #
 # `enable_security_headers` / `disable_security_headers` toggle the
 # whole bundle.
+
+# ---------------------------------------------------------------------
+# E-mails (bienvenue, mot de passe oublié) — AccountMailer.
+# ---------------------------------------------------------------------
+# Soli lit SOLI_SMTP_HOST / _PORT / _USER / _PASS / _TLS / _FROM tout seul.
+# Repli pour un .env aux noms classiques (SMTP_HOST, SMTP_USER…) : on les
+# passe au mailer. Sans hôte SMTP, `soli serve --dev` range les messages dans
+# la boîte de dev (/__soli/inbox).
+if getenv("SOLI_SMTP_HOST").blank? && !getenv("SMTP_HOST").blank?
+  Mailer.configure({
+    "delivery_method": "smtp",
+    "host": getenv("SMTP_HOST"),
+    "port": (getenv("SMTP_PORT") ?? "587").to_i,
+    "user": getenv("SMTP_USER") ?? getenv("SMTP_USERNAME"),
+    "pass": getenv("SMTP_PASS") ?? getenv("SMTP_PASSWORD"),
+    "tls": getenv("SMTP_TLS") ?? "auto",
+    "from": getenv("SMTP_FROM") ?? getenv("MAIL_FROM") ?? "MiniFusion <noreply@solisoft.net>"
+  })
+end

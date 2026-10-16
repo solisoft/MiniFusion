@@ -1,0 +1,6 @@
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.55;color:#161b22;max-width:560px">
+  <p>Bonjour <%= @name %>,</p>
+  <p>Votre compte MiniFusion est prêt. Vos plans sont enregistrés en ligne et vous suivent d'un poste à l'autre.</p>
+  <p><a href="<%= @link %>" style="display:inline-block;background:#161b22;color:#ffffff;padding:11px 18px;border-radius:3px;text-decoration:none;font-weight:bold">Ouvrir mes plans</a></p>
+  <p style="color:#56616d;font-size:14px">Pour commencer : « Nouveau plan », une esquisse, une extrusion — la pièce existe.</p>
+</div>
