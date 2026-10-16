@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= @title %> · MiniFusion</title>
+    <meta name="description" content="<%= @description ?? "CAO paramétrique et FAO dans le navigateur." %>">
+    <link rel="stylesheet" href="<%= public_path("css/application.css") %>">
+</head>
+<body class="min-h-full antialiased">
+    <%= yield %>
+</body>
+</html>

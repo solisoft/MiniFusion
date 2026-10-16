@@ -8,13 +8,13 @@
 // Exécute le vrai importSTEP (noyau OCCT réel, STEP = boîte 100×60×40 générée ici).
 const fs=require('fs'),vm=require('vm'),path=require('path');
 const ROOT=path.join(__dirname,'..');
-globalThis.__dirname=path.join(ROOT,'occt');
-vm.runInThisContext(fs.readFileSync(path.join(ROOT,'occt','opencascade.full.js'),'utf8'),{filename:'occt.js'});
+globalThis.__dirname=path.join(ROOT,'public','occt');
+vm.runInThisContext(fs.readFileSync(path.join(ROOT,'public','occt','opencascade.full.js'),'utf8'),{filename:'occt.js'});
 const {loadApp}=require('./appvm.cjs');
 let ko=0;
 const A=(c,m)=>{if(!c){ko++;console.log('  ✗ '+m);}else console.log('  ✓ '+m);};
 (async()=>{
-  const real=await globalThis.opencascadeFactory({wasmBinary:fs.readFileSync(path.join(ROOT,'occt','opencascade.wasm.wasm'))});
+  const real=await globalThis.opencascadeFactory({wasmBinary:fs.readFileSync(path.join(ROOT,'public','occt','opencascade.wasm.wasm'))});
   const {ctx,sandbox,loadErr}=loadApp();
   if(loadErr)console.log('  (harnais : buildScene interrompu — comportement normal du stub)');
   sandbox.__realOcct=real;

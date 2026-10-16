@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="soli-nav" content="off">
+<meta name="csrf-token" content="<%= @csrf_token %>">
+<title>MiniFusion — Esquisse / Extrusion / STEP</title>
+<script src="/threejs/three.min.js?v=<%= @asset_ver %>"></script>
+<script src="/threejs/OrbitControls.js?v=<%= @asset_ver %>"></script>
+<script src="/threejs/CSG.js?v=<%= @asset_ver %>"></script>
+
+<style>
+:root{--bg:#1c1c1e;--surface:rgba(44,44,46,.88);--primary:#0a84ff;--glow:rgba(10,132,255,.35);--accent:#30d158;--warn:#ffd60a;--text:#f5f5f7;--muted:#98989d;--border:rgba(255,255,255,.09);--radius:12px}
+*{box-sizing:border-box}body{font-family:-apple-system,'SF Pro Display',Inter,sans-serif;background:radial-gradient(1200px 500px at 50% -10%,rgba(10,132,255,.12),transparent),var(--bg);color:var(--text);margin:0;padding:10px 12px;height:100vh;overflow:hidden;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 14px;margin-bottom:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}
+.brand{font-weight:700;font-size:1.05rem}.brand .tag{font-size:.65rem;background:linear-gradient(135deg,#0a84ff,#5e5ce6);padding:3px 9px;border-radius:20px;margin-left:8px;vertical-align:middle}
+.tb{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.sep{width:1px;height:26px;background:var(--border)}
+button,select{font-family:inherit;font-size:.83rem;font-weight:500;padding:8px 13px;border-radius:8px;cursor:pointer;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:var(--text)}
+button:hover,select:hover{border-color:var(--primary);box-shadow:0 0 12px var(--glow)}
+option{color:#111;background:#fff}
+button.primary{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600}
+button.warn{border-color:var(--warn);color:var(--warn)}
+button:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.hints{display:flex;gap:6px;flex-wrap:wrap;font-size:.7rem;color:var(--muted)}
+.hints span{background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:7px;padding:3px 8px}
+kbd{background:rgba(255,255,255,.1);border:1px solid var(--border);border-radius:5px;padding:1px 6px;font-size:.66rem;margin-right:4px}
+.layout{display:flex;gap:12px;flex:1;min-height:0}
+.sidebar{width:272px;flex:none;display:flex;flex-direction:column;gap:10px;min-height:0;overflow-y:auto}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px}
+.panel-title{font-size:.66rem;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:0 0 8px}
+.tree{font-size:.82rem}.tnode{padding:3px 6px;border-radius:6px;cursor:pointer;display:flex;gap:7px;align-items:center;white-space:nowrap;overflow:hidden}
+.tnode:hover{background:rgba(10,132,255,.25)}.tnode.sel{background:rgba(10,132,255,.4)}.tnode.hidden{opacity:.45}.tnode.hidden .nm{text-decoration:line-through}.tnode.locked{opacity:.4}.tnode.locked .nm{opacity:.7;text-decoration:line-through}
+.tnode .nm{flex:1;overflow:hidden;text-overflow:ellipsis}.tgroup{font-weight:700;color:var(--warn);margin-top:8px;font-size:.76rem}
+.timeline{display:flex;gap:6px;flex-wrap:wrap}.chip{font-size:.72rem;background:rgba(10,132,255,.18);border:1px solid rgba(10,132,255,.5);border-radius:16px;padding:3px 10px;cursor:pointer}
+.stage{flex:1;min-width:0;display:flex;min-height:0;position:relative}
+#vpwrap{flex:1;position:relative;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);box-shadow:0 18px 50px rgba(0,0,0,.45);min-height:240px}
+#viewport{width:100%;height:100%;display:block;background:#141416}
+#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.mlabel{position:absolute;transform:translate(-50%,-140%);background:linear-gradient(135deg,rgba(48,209,88,.95),rgba(20,140,60,.95));color:#fff;font:600 11px monospace;padding:3px 9px;border-radius:7px;white-space:nowrap}
+#partsOverlay{position:absolute;top:0;bottom:0;left:0;z-index:20;width:230px;overflow-y:auto;background:linear-gradient(to right,rgba(0,0,0,.4),transparent);pointer-events:none;padding:10px 8px 10px 4px}
+#partsOverlay>*{pointer-events:auto}
+/* --- visualisation 3D : arborescence dans la vue, barre de vues, menu réglages --- */
+#treeWrap{position:absolute;inset:0 auto 0 0;z-index:20;display:flex;align-items:flex-start;pointer-events:none}
+#treeWrap>*{pointer-events:auto}
+#treeOverlay{width:252px;max-height:calc(100% - 56px);overflow-y:auto;margin:46px 0 10px 4px;padding:10px 12px 12px;
+  border-radius:12px;background:rgba(16,18,22,.78);border:1px solid rgba(255,255,255,.13);color:#e9e9ec;backdrop-filter:blur(7px)}
+#treeWrap.folded #treeOverlay{display:none}
+#treeToggle{margin:46px 0 0 4px;min-width:20px;height:88px;border-radius:0 10px 10px 0;background:rgba(16,18,22,.78);
+  border:1px solid rgba(255,255,255,.13);border-left:none;color:#e9e9ec;cursor:pointer;writing-mode:vertical-rl;padding:6px 2px}
+#treeToggle:hover{background:rgba(10,132,255,.3)}
+#treeOverlay .ovlTitle{margin:0 0 6px;font-size:.76rem;font-weight:700;color:#fff}
+#treeOverlay .ovlNote{margin-top:6px;font-size:.68rem;color:rgba(255,255,255,.62);line-height:1.35}
+#treeOverlay .tgroup{color:#ffd60a;margin:9px 0 3px}
+#viewbar{position:absolute;top:10px;left:4px;z-index:22;display:flex;gap:5px;align-items:center;padding:4px 6px;
+  border-radius:10px;background:rgba(16,18,22,.78);border:1px solid rgba(255,255,255,.13);backdrop-filter:blur(7px)}
+#viewbar button{padding:3px 9px;font-size:.76rem}
+#viewbar #btnSettings{font-size:.9rem;padding:1px 9px}
+#setMenu{position:absolute;top:46px;left:4px;z-index:40;display:none;flex-direction:column;gap:6px;width:262px;padding:10px 12px 12px;
+  border-radius:12px;background:rgba(14,16,20,.95);border:1px solid rgba(255,255,255,.15);box-shadow:0 16px 44px rgba(0,0,0,.55)}
+#setMenu.open{display:flex}
+#setMenu .ovlTitle{margin:2px 0 0;font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+#setMenu .setRow{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+#setMenu label{display:flex;align-items:center;gap:6px;font-size:.78rem;margin:0;color:#e9e9ec}
+#setMenu input[type=range]{width:100%}
+#setMenu .ovlNote{font-size:.68rem;color:rgba(255,255,255,.6);line-height:1.35}
+.part-row{display:flex;align-items:center;gap:7px;padding:2px 6px;border-radius:6px;cursor:pointer;font-size:.78rem;color:#fff;text-shadow:0 1px 4px #000}
+.part-row:hover{background:rgba(10,132,255,.35)}.part-row.hidden{opacity:.45}.pdot{width:11px;height:11px;border-radius:50%;flex:none;border:1px solid rgba(255,255,255,.5)}
+.right{width:288px;flex:none;display:flex;flex-direction:column;gap:10px;min-height:0;overflow-y:auto}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.col{display:flex;flex-direction:column;gap:8px}
+label{font-size:.83rem;display:inline-flex;align-items:center;gap:7px}
+input[type=number],input[type=text]{background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 8px;font-size:.83rem;width:100%}
+input[type=range]{accent-color:var(--primary);width:100%}
+.note{font-size:.72rem;color:var(--muted)}code{background:rgba(255,255,255,.08);border-radius:4px;padding:0 5px;font-size:.72rem}
+.measurebar{margin-top:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:8px 14px;display:grid;grid-template-columns:1.2fr 1fr;gap:8px 16px;flex:none}
+#faceInfo,#stats{font-family:monospace;font-size:.72rem;line-height:1.45;max-height:86px;overflow:auto;background:rgba(10,132,255,.07);border:1px solid rgba(10,132,255,.3);border-radius:8px;padding:6px 10px;white-space:pre-wrap}
+#sketchOverlay{display:none;position:absolute;inset:0;z-index:50;background:rgba(12,12,14,.72);flex-direction:column}
+#sketchOverlay.open{display:flex}
+#skToolbar{display:flex;gap:8px;align-items:center;padding:10px 14px;flex-wrap:wrap;border-bottom:1px solid var(--border)}
+#skToolbar .tool.on{background:var(--primary);border-color:var(--primary)}
+#skSvg{flex:1;min-width:0;background:rgba(16,16,18,.28);cursor:crosshair;touch-action:none}
+#skMain{flex:1;display:flex;min-height:0;position:relative}
+#skSide{width:252px;flex:none;background:rgba(30,30,34,.97);border-left:1px solid var(--border);overflow-y:auto;padding:10px 12px;font-size:.78rem}
+#skSide h4{margin:10px 0 6px;font-size:.66rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+#skSide .lst{display:flex;flex-direction:column;gap:4px}
+#skSide .li{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:6px;padding:4px 8px;cursor:pointer;font-size:.76rem}
+#skSide .li:hover{border-color:var(--primary)}
+#skSide .li.sel{border-color:var(--warn)}
+#skSide .li .x{margin-left:auto;color:var(--muted);cursor:pointer;padding:0 2px}
+#skSide .li .x:hover{color:#ff453a}
+#skSide input[type=number]{padding:3px 6px;font-size:.76rem}
+#skStatus{font-size:.75rem;color:var(--muted);padding:3px 14px;min-height:20px}
+.skrow{display:flex;gap:6px;align-items:center;margin:3px 0}
+.skrow label{flex:1;font-size:.74rem;color:var(--muted)}
+.skbtn{font-size:.74rem;padding:5px 9px}
+#skToolbar .tool.on{background:var(--primary);border-color:var(--primary)}
+#skToolbar .con.on{background:#30d158;border-color:#30d158}
+#skToolbar .tool,#skToolbar .con{padding:5px 7px;line-height:0;min-width:34px;display:inline-flex;align-items:center;justify-content:center}
+#skToolbar .con{color:#30d158}
+#skToolbar .con[data-con="construction"]{color:#c7c7cc}
+#skToolbar .tool[data-tool="hpoint"]{color:#ff9f0a}
+#skToolbar .tool.on{color:#fff}
+#skToolbar .sksep{width:1px;align-self:stretch;background:var(--border);margin:0 2px}
+.skico{display:block;flex:none}
+.skli-ic{display:inline-flex;align-items:center;color:#30d158;flex:none;margin-right:6px}
+#skConsList .li,#skDimsList .li{display:flex;align-items:center}
+#ctxMenu,#ctxMenu3D{display:none;position:fixed;z-index:5000;min-width:200px;background:rgba(28,28,32,.96);border:1px solid var(--border);border-radius:9px;padding:5px;box-shadow:0 12px 32px rgba(0,0,0,.6)}
+#ctxMenu button,#ctxMenu3D button{display:block;width:100%;text-align:left;background:none;border:none;padding:7px 10px;font-size:.82rem;border-radius:6px}
+#ctxMenu .ctxRow,#ctxMenu3D .ctxRow{display:flex;gap:6px;align-items:center;padding:5px 10px;font-size:.82rem}
+#ctxMenu .ctxRow input[type=color],#ctxMenu3D .ctxRow input[type=color]{width:38px;height:24px;padding:0;border:1px solid var(--border);border-radius:5px;background:none;cursor:pointer}
+#ctxMenu .ctxRow input[type=range],#ctxMenu3D .ctxRow input[type=range]{flex:1;min-width:80px}
+#ctxMenu .ctxRow .ctxOpV,#ctxMenu3D .ctxRow .ctxOpV{font-family:monospace;font-size:.72rem;min-width:38px;text-align:right}
+#ctxMenu .ctxWrap{border-top:1px solid var(--border);margin-top:4px;padding-top:4px}
+#ctxMenu button:hover,#ctxMenu3D button:hover{background:var(--primary)}
+@media(max-width:1100px){.right{display:none}.measurebar{grid-template-columns:1fr}#treeOverlay{width:210px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">◧ MiniFusion <span class="tag">MVP paramétrique</span> <span class="tag" id="appVer" title="Version du code (anti-cache)">…</span></div>
+  <div class="tb">
+    <button id="btnSketch" class="primary" title="Nouvelle esquisse — sur la face sélectionnée si une face est sélectionnée, sinon sur le plan XY (double-clic sur un plan de l'arborescence = esquisse dessus)">✏️ Esquisse</button>
+    <button id="btnExtrude" title="Extruder une esquisse — raccourci E (sens, étendue et distance dans les propriétés ; flèche )">🧱 Extrusion</button>
+    <button id="btnFillet" title="Congé exact OCCT : toutes les arêtes cliquables, rayon par arête (repli maillage si noyau indisponible)">⤢ Congé</button>
+    <button id="btnChamfer" title="Chanfrein exact OCCT : toutes les arêtes cliquables, distance par arête">⟋ Chanfrein</button>
+    <button id="btnRepeat" title="Répétition linéaire/circulaire/symétrie : Ctrl+clic dans l'arbre pour choisir les fonctions">🔁 Répétition</button>
+<button id="btnMoveFace" title="Déplacer une face le long de sa normale sortante : distance positive, la face avance ; négative, elle rentre">📐 Déplacer une face</button>
+<button id="btnCoque" title="Créer une coque (shell) à partir du solide exact.">⚙ Coque</button>
+    <div class="sep"></div>
+    <button id="btnImport" title="Importer STEP / STL">📥 Importer</button>
+    <button id="btnExportStep" title="Exporter STEP (OCCT si dispo)">📤 STEP</button>
+    <button id="btnExportStl" title="Exporter STL maillage">📤 STL</button>
+    <button id="btnExportObj" title="Exporter OBJ maillage">📤 OBJ</button>
+    <div class="sep"></div>
+    <button id="btnNew" title="Nouveau modèle (réinitialise tout)">📄 Nouveau</button>
+    <button id="btnSave" title="Sauvegarder (local)">💾 Sauver</button>
+    <button id="btnSaveAs" title="Sauver sous… (.minifusion.json)">💾⏏️ Sous…</button>
+    <button id="btnLoad" title="Ouvrir un projet">📂 Ouvrir</button>
+    <input type="file" id="fileProj" accept=".json,.minifusion.json" style="display:none">
+    <input type="file" id="fileImport" accept=".step,.stp,.STEP,.STP,.stl,.STL" style="display:none">
+  </div>
+  <div class="hints" style="width:100%">
+    <span><kbd>Clic</kbd>face 1</span><span><kbd>Ctrl/Cmd+clic</kbd>2e face / arête : mesure</span><span><kbd>Shift+clic</kbd>Ø exact</span><span><kbd>Molette</kbd>tourner</span><span><kbd>Clic droit</kbd>menu pièce</span><span><kbd>Ctrl+clic droit</kbd>recentrer</span><span><kbd>Alt+double-clic</kbd>isoler</span><span><kbd>Échap</kbd>effacer sélection</span>
+  </div>
+</header>
+
+<div class="layout">
+  <main class="stage"><div id="vpwrap">
+    <canvas id="viewport"></canvas><div id="labels"></div>
+    <div id="treeWrap">
+      <button id="treeToggle" title="Replier / déplier l'arborescence">❯</button>
+      <div id="treeOverlay">
+        <p class="ovlTitle">Arborescence — <span id="docName">Sans titre</span></p>
+        <div class="tree" id="tree"></div>
+        <div class="ovlNote">Clic = sélectionner · double-clic = éditer · clic droit = menu (renommer / temps / supprimer).</div>
+      </div>
+    </div>
+    <div id="viewbar">
+      <button data-view="iso" title="Vue isométrique (F5)">Iso</button>
+      <button data-view="top" title="Vue de dessus">Dessus</button>
+      <button data-view="front" title="Vue de face">Face</button>
+      <button data-view="right" title="Vue de droite">Droite</button>
+      <button id="btnFit" title="Cadrer toute la pièce">Tout afficher</button>
+      <button id="btnSettings" title="Réglages de visualisation">⚙</button>
+    </div>
+    <div id="setMenu">
+      <p class="ovlTitle">Vues</p>
+      <div class="setRow"><button data-view="iso">Iso</button><button data-view="top">Dessus</button><button data-view="front">Face</button><button data-view="right">Droite</button><button id="setFit">Tout afficher</button></div>
+      <p class="ovlTitle">Affichage</p>
+      <div class="setRow"><label><input type="checkbox" id="optMirror" checked> Sol miroir</label></div>
+      <div class="setRow"><label>Arêtes <select id="optEdges" title="Sans arêtes : ombrage pur · Avec arêtes : vives noires, tangentes gris clair"><option value="off">Masquées</option><option value="on">Vives noires / tangentes grises</option></select></label></div>
+      <div class="setRow"><label><input type="checkbox" id="optAxes" checked> Repère (axes XYZ)</label></div>
+      <div class="setRow"><label><input type="checkbox" id="optZoomInv"> Inverser le zoom</label></div>
+      <div class="setRow"><label title="Chaque modification reconstruit tout le modèle depuis zéro (aucun sous-ensemble réutilisé). Désactiver = rejeu rapide par points de contrôle, ~4× plus rapide sur les modifications de fin de timeline, mais moins frais."><input type="checkbox" id="optFresh"> Rafraîchissement dur à chaque modification</label></div>
+      <p class="ovlTitle">Coupe</p>
+      <div class="setRow"><label><input type="checkbox" id="clipOn"> Activer coupe (plan Z · hauteur)</label></div>
+      <div class="setRow"><input type="range" id="clipPos" min="-100" max="100" value="0" step="0.5" title="Hauteur du plan de coupe"></div>
+      <div class="setRow"><label><input type="checkbox" id="clipFlip"> Inverser côté</label></div>
+      <div class="ovlNote">Plan de coupe global sur les corps visibles.</div>
+    </div>
+    <div id="sketchOverlay">
+      <div id="skToolbar">
+        <b id="skTitle">Esquisse</b>
+        <button class="tool on" data-tool="select" title="Sélectionner / déplacer les points (Suppr = effacer)">➤</button>
+        <button class="tool" data-tool="line" title="Ligne : clic 1 = départ, clic 2 = arrivée → sélection auto">╲</button>
+        <button class="tool" data-tool="rect" title="Rectangle : clic 1 = 1er coin, clic 2 = 2e coin (Ctrl/Cmd = centre) · cotes auto">▭</button>
+        <button class="tool" data-tool="slot" title="Oblong / rainure : clic 1 = 1er coin, clic 2 = 2e coin (Ctrl/Cmd = centre) · cotes auto">⬭</button>
+        <button class="tool" data-tool="circle" title="Cercle : clic 1 = centre, clic 2 = point du Ø">◯</button>
+        <button class="tool" data-tool="arc" title="Arc : centre, début, fin (3 clics)">◔</button>
+        <button class="tool" data-tool="cpoint" title="Point de construction">·+·</button>
+        <button class="tool" data-tool="hpoint" title="Centre de perçage : point dédié aux trous (fonction 3D « Perçage » : simple, lamage, fraisure, taraudé)">⊕</button>
+        <button class="tool" data-tool="project" title="Projeter arête 3D → construction (ligne / cercle + centre) pour coter">⧉</button>
+        <button class="tool" data-tool="dim" title="Cote : ligne=longueur, cercle=Ø, arc=rayon, 2 points=distance · Ctrl/Cmd+clic 2 lignes = angle (sécantes) ou entraxe (//), pilotés">📐</button>
+        <button class="tool" data-tool="coincident" title="Coïncident : cliquez 2 extrémités à fusionner">⌖</button>
+        <button class="tool" data-tool="trim" title="Ajuster (trim) : cliquez le tronçon à retirer entre 2 intersections">✂</button>
+        <span class="sksep"></span>
+        <button class="con" data-con="h" title="Horizontal : lignes sélectionnées">─H</button>
+        <button class="con" data-con="v" title="Vertical : lignes sélectionnées">│V</button>
+        <button class="con" data-con="parallel" title="Parallèle : 2 lignes">∥</button>
+        <button class="con" data-con="perpendicular" title="Perpendiculaire : 2 lignes">⟂</button>
+        <button class="con" data-con="collinear" title="Colinéaire : 2 lignes portées par la même droite">⫽</button>
+        <button class="con" data-con="equal" title="Égal : 2 lignes ou 2 cercles/arcs">＝</button>
+        <button class="con" data-con="symmetric" title="Symétrie : 2 lignes + axe (3ᵉ ligne sélectionnée) — miroir">⇔</button>
+        <button class="con" data-con="fix" title="Fixe : point / ligne / cercle sélectionné">📌</button>
+        <button class="con" data-con="tangent" title="Tangence : 1 ligne + 1 cercle/arc, ou 2 cercles">⦾</button>
+        <button class="con" data-con="coaxial" title="Coaxial : 2 cercles/arcs — mêmes centres (concentriques)">◎</button>
+        <button class="con" data-con="midpoint" title="Milieu : 2 lignes (milieux égaux) ou 1 point + 1 ligne (point au centre) — sans couper la ligne">⊕</button>
+        <button class="con" data-con="construction" title="Construction : hors profil, trait discontinu (touche X)">⇄</button>
+        <span class="sksep"></span>
+        <label style="font-size:.75rem"><input type="checkbox" id="skSnap" checked> Grille 1 mm</label>
+        <button id="skZoomIn" title="Zoom + (ou molette)">＋</button>
+        <button id="skZoomOut" title="Zoom - (ou molette)">－</button>
+        <button id="skFit" title="Cadrer l’esquisse">⌂</button>
+        <button id="skRefs" title="Afficher/masquer les arêtes du solide projetées (repère)">👁</button>
+        <button id="skUndo" title="Annuler (Ctrl+Z)">↩</button>
+        <button id="skRedo" title="Rétablir (Ctrl+Y)">↪</button>
+        <button id="skClear" class="warn">Effacer tout</button>
+        <span style="flex:1"></span>
+        <button id="skCancel">Abandonner</button>
+        <button id="skOk" class="primary">✔ Terminer</button>
+      </div>
+      <div id="skMain">
+        <svg id="skSvg" width="100%" height="100%"></svg>
+        <div id="skSide">
+          <h4>Santé</h4><div id="skHealth" class="lst"><span class="note">—</span></div>
+          <h4>Sélection</h4><div id="skSelBox"><span class="note">Cliquez une entité (outil ➤).</span></div>
+          <h4>Contraintes</h4><div id="skConsList" class="lst"></div>
+          <h4>Cotes</h4><div id="skDimsList" class="lst"></div>
+        </div>
+      </div>
+      <div id="skStatus">Clic 1 = 1er point, clic 2 = 2e point → sélection auto. Molette = zoom · clic-molette = déplacer la vue · Clic droit / Échap = annuler.</div>
+    </div>
+  </div></main>
+
+  <aside class="right">
+    <div class="panel"><p class="panel-title">Paramètres</p><div id="props" class="col"><span class="note">Sélectionnez une esquisse / extrusion / corps dans l'arbre.</span></div></div>
+    <div class="panel"><p class="panel-title">Mesure</p><div id="faceInfo">Clic face 1, puis Ctrl+clic face 2.</div></div>
+    <div class="panel"><p class="panel-title">État</p><div id="stats">Init…</div>
+    <div class="note" id="occtState">OCCT : chargement…</div>
+    <div class="note" style="margin-top:4px">Code en mémoire : <b id="appVerLive">…</b> — si ce numéro n'est pas à jour, le navigateur sert une copie en cache : <b>Ctrl+Maj+R</b> (rechargement forcé).</div>
+    <div id="skStatWrap" style="display:none;margin-top:8px"><p class="panel-title">État des Contraintes</p><div id="skStat" class="note">—</div></div>
+    <div class="row" style="margin-top:6px"><button id="btnOccWasm" title="Mode fichier (file://) : désignez occt/opencascade.wasm.wasm pour démarrer le noyau exact sans serveur">⚙ Noyau .wasm…</button><input type="file" id="fileWasm" accept=".wasm" style="display:none"></div>
+    <div class="row" style="margin-top:6px"><button id="btnRebuild" title="Régénérer tout le modèle (Ctrl+Maj+R)">⟳ Régénérer</button><button id="btnSelfTest" title="Rejoue la batterie de non-régression (esquisse)">🧪 Auto-tests</button></div>
+    <div id="selfTest" class="note" style="white-space:pre-wrap;max-height:150px;overflow:auto"></div></div>
+  </aside>
+</div>
+
+<footer class="measurebar" style="display:none"></footer>
+<div id="ctxMenu"><button data-act="rename">✏️ Renommer</button><button data-act="toggle">👁 Afficher / masquer</button><button data-act="edit">🔧 Éditer l'esquisse</button><button data-act="tl">⏱ Bloquer le temps à ce point</button><button data-act="tlclear">↗ Fin : rejouer tout</button><button data-act="del">🗑 Supprimer</button></div>
+<div id="ctxMenu3D"><div id="ctx3DTitle" style="font-size:.72rem;color:var(--muted);padding:5px 10px">Pièce</div><button data-act="hide">🙈 Masquer</button><button data-act="ghost">👻 Transparent</button><button data-act="isolate">🎯 Isoler</button><button data-act="showall">✅ Tout afficher</button><div class="ctxRow"><span title="Couleur du corps (la même partout)">🎨</span><input type="color" id="ctxColor" value="#0a84ff" title="Couleur du corps (la même partout)"></div><div class="ctxRow"><span title="Transparence du corps (identique au panneau)">🔆</span><input type="range" id="ctxOp" min="15" max="100" value="100" title="Transparence du corps"><span id="ctxOpV">100%</span></div></div>
+<div id="skCtxMenu" style="display:none;position:absolute;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px;z-index:100;min-width:160px;box-shadow:0 8px 24px rgba(0,0,0,.4)"><div id="skCtxTitle" style="font-size:.72rem;color:var(--muted);padding:4px 8px">Cote / Contrainte</div></div>
+
+<script>window.MF_SERVER=<%- @boot_json %>;</script>
+<script>
+<%- @cad_js %>
+</script>
+<script src="/shortcuts.js?v=<%= @asset_ver %>"></script>
+</body>
+</html>

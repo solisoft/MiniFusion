@@ -3957,3 +3957,10 @@ Nouveau test `test_conge_arete_seule` (noyau réel : arête tangente à un arc �
 - **Cause** (Axe (1)) : la face cliquée était surlignée SANS test de profondeur — on la voyait à travers la pièce : paroi de poche « flottante » en orange, et la partie arrière du grand cylindre qui débordait en orange sur les congés de devant.
 - **Correctif** : surlignage masqué par la matière devant lui (décalage de polygone pour rester au-dessus de sa propre face) ; seule exception, un corps en verre, où l'on voit la face au travers (`src/90-picking-mesure-import.js`).
 Vérifié au navigateur (arbre déplié et replié ; clic sur le cylindre R28 d'Axe (1) : orange limité à la face, congés intacts). Migration : `APP_VER` → `2026-10-16-016` ; badge **V0.1.54 → V0.1.55**.
+
+## 2026-10-16-017 · V0.1.56 — L'app est servie par Soli (fusion.solisoft.test)
+- **Cause** : le « serveur » se limitait à `npx serve` (Server.bat) ; on prépare une vraie app côté serveur (comptes, plans en ligne) et la sortie de Node.
+- **Correctif** : le dépôt devient une app Soli MVC (`app/`, `config/`, `public/`). La page de l'éditeur est servie sur `/editor` : sa coquille vit dans `app/views/editor/show.html.slv` et son script est assemblé à la requête depuis `src/` par `CadBundle` (`app/services/cad_bundle.sl`), même ordre et mêmes bandeaux que `build.js` — sortie identique à l'octet. Plus d'étape de build pour servir : éditer `src/`, recharger.
+- `threejs/`, `occt/` et `shortcuts.js` passent dans `public/` ; `opencascade.full.wasm` (50 Mo, référencé nulle part) est retiré. Les URL du noyau sont absolues et versionnées (`/occt/…?v=APP_VER`, `src/96-noyau-occt-tiers-lgpl.js`) : Soli sert `public/` en cache « immutable ».
+- soli-proxy : `proxy/sites/fusion.solisoft.test` → ce dépôt, `app.infos` (`soli serve . --dev`, santé `/health`).
+Vérifié au navigateur (`https://fusion.solisoft.test/editor` : OCCT prêt, aucune erreur console ; wasm servi en `application/wasm`). Migration : `APP_VER` → `2026-10-16-017` ; badge **V0.1.55 → V0.1.56**.

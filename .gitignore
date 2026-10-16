@@ -4,4 +4,15 @@ node_modules/
 diff_g_o.txt
 fusion_mvp - Copie.html
 *.html.bak_g
-occt/*.bak
+public/occt/*.bak
+
+# App Soli
+.env
+.env.local
+.env.*.local
+*.log
+*.pid
+/storage/
+/tmp/
+coverage/
+.coverage

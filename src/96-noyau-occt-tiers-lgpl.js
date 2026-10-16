@@ -1,7 +1,10 @@
 /* ---------- OCCT exact (opencascade.js 1.1.4 vendu localement) ---------- */
-function occtFileUrl(p){ // chemin relatif : marche en http(s) comme en file://
-  try{const b=document.currentScript&&document.currentScript.src?document.currentScript.src:location.href;
-    return new URL(p,b).href;}catch(e){return p;}
+// Les fichiers du noyau sont servis par l'app Soli depuis public/occt/, à la racine du site
+// (l'éditeur vit sous /editor/:id : un chemin relatif viserait /editor/occt/). Le ?v= suit
+// APP_VER : Soli sert public/ en cache « immutable » d'un an.
+function occtFileUrl(p){
+  const v=(typeof window!=='undefined'&&window.MF_SERVER&&window.MF_SERVER.assetVer)||APP_VER;
+  try{return new URL('/'+p+'?v='+encodeURIComponent(v),location.href).href;}catch(e){return '/'+p;}
 }
 function occIdbOpen(){
   if(typeof indexedDB==='undefined'||!indexedDB.open)return Promise.reject(new Error('IndexedDB indisponible'));
@@ -48,7 +51,7 @@ function occCacheLoad(){
   const fail=(where,err)=>{
     occtReady=false;
     const m=String((err&&(err.message||err))||err||'?').slice(0,160);
-    occBaseMsg=`OCCT : échec ${where} (${m}) — repli maillage. Vérifiez http://localhost:3000/occt/opencascade.wasm.wasm (65 Mo attendus).`;
+    occBaseMsg=`OCCT : échec ${where} (${m}) — repli maillage. Vérifiez /occt/opencascade.wasm.wasm (65 Mo attendus).`;
     occStatus();
   };
   const withTimeout=(p,ms,what)=>Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error('délai dépassé '+what)),ms))]);
@@ -59,7 +62,7 @@ function occCacheLoad(){
   const boot=async factory=>{
     stage('JS noyau OK, compilation wasm (~65 Mo, ~10-60 s) — interface momentanément figée…');
     await yieldUI();
-    occt=await withTimeout(factory({locateFile:p=>String(p).endsWith('.wasm')?'occt/opencascade.wasm.wasm':p}),180000,'compilation wasm');
+    occt=await withTimeout(factory({locateFile:p=>String(p).endsWith('.wasm')?occtFileUrl('occt/opencascade.wasm.wasm'):p}),180000,'compilation wasm');
     occBaseMsg=`OCCT : prêt en ${((performance.now()-t0)/1000).toFixed(0)} s — vérification…`;occStatus();
     await occtFinishBoot();
   };
@@ -67,7 +70,7 @@ function occCacheLoad(){
     stage('JS noyau OK, compilation depuis le cache local (~65 Mo) — interface momentanément figée…');
     await yieldUI();
     try{
-      occt=await withTimeout(factory({wasmBinary:bin,locateFile:p=>String(p).endsWith('.wasm')?'occt/opencascade.wasm.wasm':p}),180000,'compilation wasm');
+      occt=await withTimeout(factory({wasmBinary:bin,locateFile:p=>String(p).endsWith('.wasm')?occtFileUrl('occt/opencascade.wasm.wasm'):p}),180000,'compilation wasm');
       occBaseMsg=`OCCT : prêt depuis le cache local en ${((performance.now()-t0)/1000).toFixed(0)} s — vérification…`;occStatus();
       await occtFinishBoot();
     }catch(e){fail('démarrage (cache)',e);}
@@ -95,7 +98,7 @@ function occCacheLoad(){
   }catch(e1){
     try{
       stage('import ESM impossible, essai script classique…');
-      await withTimeout(new Promise((res,rej)=>{const s=document.createElement('script');s.src='occt/opencascade.full.js';s.onload=res;s.onerror=()=>rej(new Error('script 404/erreur'));document.head.appendChild(s);}),30000,'chargement script');
+      await withTimeout(new Promise((res,rej)=>{const s=document.createElement('script');s.src=occtFileUrl('occt/opencascade.full.js');s.onload=res;s.onerror=()=>rej(new Error('script 404/erreur'));document.head.appendChild(s);}),30000,'chargement script');
       const factory=window.opencascadeFactory||window.opencascade;
       if(typeof factory!=='function')throw new Error('factory absente (script)');
       if(cached){await bootBin(factory,cached);return;}

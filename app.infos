@@ -1,0 +1,17 @@
+# Local soli-proxy entry (https://fusion.solisoft.test). The proxy's sites/
+# directory links here: ~/Work/soli/proxy/sites/fusion.solisoft.test -> MiniFusion/.
+name = "fusion.solisoft.test"
+domain = "fusion.solisoft.test"
+display_name = "MiniFusion"
+
+# --dev: views, actions and src/*.js (assembled per request by CadBundle) reload
+# live. `--strict-port`: the proxy health-checks the port it assigned, so an app
+# that quietly moved to port+1 would read as unhealthy.
+start_script = "soli serve . --dev --port $PORT --strict-port"
+stop_script = ""
+
+health_check = "/health"
+graceful_timeout = 30
+
+port_range_start = 20000
+port_range_end = 30000

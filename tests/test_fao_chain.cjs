@@ -12,14 +12,14 @@
 // usinée dans le coin supérieur droit.
 const fs=require('fs'),vm=require('vm'),path=require('path');
 const ROOT=path.join(__dirname,'..');
-globalThis.__dirname=path.join(ROOT,'occt');
-vm.runInThisContext(fs.readFileSync(path.join(ROOT,'occt','opencascade.full.js'),'utf8'),{filename:'occt.js'});
+globalThis.__dirname=path.join(ROOT,'public','occt');
+vm.runInThisContext(fs.readFileSync(path.join(ROOT,'public','occt','opencascade.full.js'),'utf8'),{filename:'occt.js'});
 const {loadApp}=require('./appvm.cjs');
 const json=fs.readFileSync([path.join(ROOT,'tests','fixtures','cavite_usinage.minifusion.json'),path.join(ROOT,'Cavité Usinage.minifusion.json'),path.join(ROOT,'Exemples','Cavité Usinage.minifusion.json')].find(fs.existsSync),'utf8');
 let ko=0;
 const A=(c,m)=>{if(!c){ko++;console.log('  ✗ '+m);}else console.log('  ✓ '+m);};
 (async()=>{
-  const real=await globalThis.opencascadeFactory({wasmBinary:fs.readFileSync(path.join(ROOT,'occt','opencascade.wasm.wasm'))});
+  const real=await globalThis.opencascadeFactory({wasmBinary:fs.readFileSync(path.join(ROOT,'public','occt','opencascade.wasm.wasm'))});
   const {ctx,sandbox}=loadApp();
   sandbox.__realOcct=real;
   sandbox.__docJson=json;
