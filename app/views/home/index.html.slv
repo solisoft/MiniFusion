@@ -1,1 +1,150 @@
-<main class="p-8"><h1>MiniFusion</h1><p><a href="/editor">Ouvrir l’éditeur</a></p></main>
+<main>
+    <%# Hero : la promesse, puis la vraie vue d'usinage, cartouchée comme une feuille de dessin. %>
+    <section class="max-w-[1240px] mx-auto px-5 sm:px-8 pt-8 sm:pt-14">
+        <h1 class="text-[clamp(2.75rem,7.2vw,5.75rem)]">Dessinez la pièce,<br class="hidden sm:inline"> sortez le G-code.</h1>
+        <div class="mt-7 grid gap-8 lg:grid-cols-[minmax(0,36rem)_auto] lg:items-end lg:justify-between">
+            <p class="text-[1.2rem] leading-relaxed text-graphite max-w-[36rem]">
+                MiniFusion est un logiciel de conception paramétrique et d'usinage qui s'ouvre dans le navigateur :
+                esquisses contraintes, solides exacts, parcours d'outil, programmes pour Sinumerik&nbsp;840D et Fagor&nbsp;8065.
+                Rien à installer, et vos plans sont enregistrés en ligne.
+            </p>
+            <div class="flex flex-wrap gap-3">
+                <% if @signed_in %>
+                    <a href="/plans" class="btn btn-solid">Ouvrir mes plans</a>
+                <% else %>
+                    <a href="/signup" class="btn btn-solid">Créer un compte</a>
+                    <form method="post" action="/login/demo">
+                        <%- csrf_field() %>
+                        <button type="submit" class="btn btn-line">Essayer la démo</button>
+                    </form>
+                <% end %>
+            </div>
+        </div>
+    </section>
+
+    <figure class="relative max-w-[1400px] mx-auto px-3 sm:px-8 mt-12 sm:mt-16">
+        <div class="sheet p-1.5 sm:p-2.5">
+            <img src="/images/landing/usinage-1200.webp"
+                 srcset="/images/landing/usinage-1200.webp 1200w, /images/landing/usinage-2400.webp 2400w"
+                 sizes="(min-width: 1400px) 1340px, 100vw" width="2400" height="1500"
+                 alt="L'éditeur MiniFusion : une cavité en cours d'usinage, les parcours de surfaçage et d'ébauche 3D tracés sur la pièce, l'arborescence des fonctions à gauche et les posages FAO à droite.">
+        </div>
+        <dl class="cartouche grid-cols-2 mt-4 mx-auto max-w-[34rem] lg:absolute lg:right-14 lg:-bottom-12 lg:mt-0 lg:w-[30rem]">
+            <div><dt>Désignation</dt><dd>Cavité usinage</dd></div>
+            <div class="border-r-0"><dt>Échelle</dt><dd>1:1</dd></div>
+            <div><dt>Opérations</dt><dd>Surfaçage, ébauche 3D</dd></div>
+            <div class="border-r-0"><dt>Post-processeur</dt><dd>Fagor 8065</dd></div>
+            <div class="border-b-0"><dt>Noyau</dt><dd>Open CASCADE</dd></div>
+            <div class="border-r-0 border-b-0"><dt>Poste</dt><dd>Un navigateur web</dd></div>
+        </dl>
+    </figure>
+
+    <%# Le parcours, dans l'ordre où on le fait : les repères 1-4 sont une vraie séquence. %>
+    <section class="max-w-[1240px] mx-auto px-5 sm:px-8 mt-24 lg:mt-36" aria-labelledby="etapes">
+        <h2 id="etapes" class="text-[clamp(2rem,4.2vw,3.25rem)] max-w-[20ch]">Du croquis à la machine, sans changer de logiciel.</h2>
+
+        <ol class="mt-12 space-y-16 lg:space-y-24">
+            <li class="grid gap-6 lg:gap-12 lg:grid-cols-[21rem_minmax(0,1fr)] items-start">
+                <div class="lg:pt-6">
+                    <span class="repere" aria-hidden="true">1</span>
+                    <h3 class="mt-4 text-3xl">Esquisser</h3>
+                    <p class="mt-3 text-graphite">
+                        Lignes, arcs, cercles, oblongs, sur un plan ou sur une face de la pièce.
+                        Les contraintes — coïncidence, tangence, symétrie, parallélisme — et les cotes tiennent le dessin ;
+                        une cote peut lire un paramètre nommé, et tout suit quand il change.
+                    </p>
+                </div>
+                <div class="sheet p-1.5">
+                    <img src="/images/landing/esquisse-1200.webp" srcset="/images/landing/esquisse-1200.webp 1200w, /images/landing/esquisse-2400.webp 2400w"
+                         sizes="(min-width: 1024px) 860px, 100vw" width="2400" height="1500" loading="lazy"
+                         alt="Une esquisse en cours d'édition : le profil coté (70, 50, 100, 190 mm), la liste des contraintes et des cotes à droite.">
+                </div>
+            </li>
+            <li class="grid gap-6 lg:gap-12 lg:grid-cols-[21rem_minmax(0,1fr)] items-start">
+                <div class="lg:pt-6">
+                    <span class="repere" aria-hidden="true">2</span>
+                    <h3 class="mt-4 text-3xl">Mettre en volume</h3>
+                    <p class="mt-3 text-graphite">
+                        Extrusion, révolution, perçage, congés et chanfreins sur les arêtes réelles, coque, dépouille, répétitions.
+                        Le noyau Open CASCADE calcule des solides exacts ; l'arborescence se rejoue à chaque modification,
+                        et la pièce s'échange en STEP.
+                    </p>
+                </div>
+                <div class="sheet p-1.5">
+                    <img src="/images/landing/modele-1200.webp" srcset="/images/landing/modele-1200.webp 1200w, /images/landing/modele-2400.webp 2400w"
+                         sizes="(min-width: 1024px) 860px, 100vw" width="2400" height="1500" loading="lazy"
+                         alt="Une pièce creuse modélisée : poches latérales, perçages et congés sur toutes les arêtes.">
+                </div>
+            </li>
+            <li class="grid gap-6 lg:gap-12 lg:grid-cols-[21rem_minmax(0,1fr)] items-start">
+                <div class="lg:pt-6">
+                    <span class="repere" aria-hidden="true">3</span>
+                    <h3 class="mt-4 text-3xl">Préparer l'usinage</h3>
+                    <p class="mt-3 text-graphite">
+                        Posages, outils, puis les opérations : surfaçage, poche, contour, perçage, ébauche 3D, finition.
+                        Les parcours se tracent sur la pièce ; un parcours périmé est signalé avant l'export.
+                    </p>
+                </div>
+                <div class="sheet p-1.5">
+                    <img src="/images/landing/parcours-1200.webp" srcset="/images/landing/parcours-1200.webp 1200w, /images/landing/parcours-2400.webp 2400w"
+                         sizes="(min-width: 1024px) 860px, 100vw" width="2400" height="1500" loading="lazy"
+                         alt="Les parcours d'outil d'une ébauche 3D dans une cavité : passes en bleu et vert, dégagements en orange.">
+                </div>
+            </li>
+            <li class="grid gap-6 lg:gap-12 lg:grid-cols-[21rem_minmax(0,1fr)] items-start">
+                <div class="lg:pt-6">
+                    <span class="repere" aria-hidden="true">4</span>
+                    <h3 class="mt-4 text-3xl">Envoyer à la machine</h3>
+                    <p class="mt-3 text-graphite">
+                        Le programme sort pour Sinumerik 840D (630, 1520 cinq axes) ou Fagor 8065, outils, vitesses et origine compris.
+                        Ci-contre, le début du programme de la cavité, tel que MiniFusion l'écrit.
+                    </p>
+                </div>
+                <figure class="gcode">
+                    <figcaption>PIECE1.nc — Fagor 8065</figcaption>
+                    <pre><code><% @gcode_lines.each do |line| %><%= line %>
+<% end %>…</code></pre>
+                </figure>
+            </li>
+        </ol>
+    </section>
+
+    <%# En ligne : le compte, ce qu'il apporte concrètement. %>
+    <section class="max-w-[1240px] mx-auto px-5 sm:px-8 mt-28 lg:mt-40 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] items-center" aria-labelledby="plans">
+        <div>
+            <h2 id="plans" class="text-[clamp(2rem,4.2vw,3.25rem)]">Vos plans vous attendent sur chaque poste.</h2>
+            <p class="mt-5 text-graphite max-w-[34rem]">
+                Chaque modification est enregistrée en ligne, au bureau comme à l'atelier.
+                Si deux postes ont modifié la même pièce, MiniFusion demande laquelle garder au lieu d'écraser l'une par l'autre.
+            </p>
+            <p class="mt-4 text-graphite max-w-[34rem]">
+                Vos fichiers <strong class="text-ink">.miniFusion</strong> existants s'importent dans un plan, et chaque plan s'exporte toujours en fichier, en STEP, STL ou OBJ.
+            </p>
+        </div>
+        <div class="sheet p-1.5">
+            <img src="/images/landing/plans-1200.webp" srcset="/images/landing/plans-1200.webp 1200w, /images/landing/plans-2400.webp 2400w"
+                 sizes="(min-width: 1024px) 700px, 100vw" width="2400" height="1500" loading="lazy"
+                 alt="La page Mes plans : trois pièces avec leur aperçu et leur cartouche (désignation, date de modification, taille).">
+        </div>
+    </section>
+
+    <section class="max-w-[1240px] mx-auto px-5 sm:px-8 mt-28 lg:mt-40 mb-20">
+        <div class="sheet px-6 py-10 sm:px-12 sm:py-14 grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+            <div>
+                <h2 class="text-[clamp(2rem,4.2vw,3.25rem)]">Une pièce à faire ?</h2>
+                <p class="mt-3 text-graphite max-w-[38rem]">Créez un compte et commencez par une esquisse. Ou ouvrez le compte de démo : sept pièces d'exemple, dont la cavité ci-dessus.</p>
+            </div>
+            <div class="flex flex-wrap gap-3">
+                <% if @signed_in %>
+                    <a href="/plans" class="btn btn-solid">Ouvrir mes plans</a>
+                <% else %>
+                    <a href="/signup" class="btn btn-solid">Créer un compte</a>
+                    <form method="post" action="/login/demo">
+                        <%- csrf_field() %>
+                        <button type="submit" class="btn btn-line">Essayer la démo</button>
+                    </form>
+                <% end %>
+            </div>
+        </div>
+    </section>
+</main>

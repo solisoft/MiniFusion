@@ -1,0 +1,62 @@
+<main class="flex-1 w-full max-w-6xl mx-auto px-5 sm:px-8 pt-6 pb-16">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+            <h1 class="text-5xl">Mes plans</h1>
+            <p class="mt-1 text-graphite">
+                <% if @plans.length == 0 %>Aucun plan pour l'instant.<% else %><%= @plans.length %> plan<%= @plans.length > 1 ? "s" : "" %>, le plus récent en premier.<% end %>
+            </p>
+        </div>
+        <form method="post" action="/plans">
+            <%- csrf_field() %>
+            <button type="submit" class="btn btn-solid">Nouveau plan</button>
+        </form>
+    </div>
+
+    <% if @flash %>
+        <p class="flash mt-6" role="status"><%= @flash["message"] %></p>
+    <% end %>
+
+    <% if @plans.length == 0 %>
+        <div class="sheet mt-10 p-8 sm:p-12 max-w-2xl">
+            <h2 class="text-3xl">Commencez une pièce</h2>
+            <p class="mt-3 text-graphite max-w-prose">
+                « Nouveau plan » ouvre l'éditeur sur une feuille vierge : une esquisse, une extrusion,
+                et la pièce existe. Vous avez déjà des fichiers <strong>.miniFusion</strong> ?
+                Ouvrez un plan, puis <em>Projet › Importer un fichier</em> : il est enregistré en ligne aussitôt.
+            </p>
+        </div>
+    <% else %>
+        <ul class="mt-9 grid gap-x-7 gap-y-10 sm:grid-cols-2 lg:grid-cols-3" role="list">
+            <% @plans.each do |plan| %>
+                <li class="group">
+                    <a href="/editor/<%= plan["key"] %>" class="block no-underline text-ink" aria-label="Ouvrir <%= plan["name"] %>">
+                        <div class="sheet aspect-[16/10] overflow-hidden grid place-items-center group-hover:outline-graphite transition-[outline-color]">
+                            <% if plan["thumbnail"] %>
+                                <img src="<%= plan["thumbnail"] %>" alt="" class="w-full h-full object-cover">
+                            <% else %>
+                                <span class="text-graphite text-sm">Pas encore d'aperçu</span>
+                            <% end %>
+                        </div>
+                        <dl class="cartouche grid-cols-[1fr_auto] mt-3">
+                            <div class="col-span-2 border-r-0"><dt>Désignation</dt><dd class="truncate"><%= plan["name"] %></dd></div>
+                            <div class="border-b-0"><dt>Modifié</dt><dd><%= plan_date(plan["updated_at"]) %></dd></div>
+                            <div class="border-r-0 border-b-0"><dt>Taille</dt><dd><%= plan_size(plan["size"]) %></dd></div>
+                        </dl>
+                    </a>
+                    <div class="mt-2 flex gap-5">
+                        <form method="post" action="/plans/<%= plan["key"] %>/duplicate">
+                            <%- csrf_field() %>
+                            <button type="submit" class="btn-quiet">Dupliquer</button>
+                        </form>
+                        <form method="post" action="/plans/<%= plan["key"] %>/delete"
+                              onsubmit="return confirm('Supprimer « ' + this.dataset.name + ' » ? Cette action est définitive.')"
+                              data-name="<%= plan["name"] %>">
+                            <%- csrf_field() %>
+                            <button type="submit" class="btn-quiet">Supprimer</button>
+                        </form>
+                    </div>
+                </li>
+            <% end %>
+        </ul>
+    <% end %>
+</main>

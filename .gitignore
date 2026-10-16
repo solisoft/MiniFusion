@@ -10,6 +10,7 @@ public/occt/*.bak
 .env
 .env.local
 .env.*.local
+.env.test
 *.log
 *.pid
 /storage/

@@ -19,7 +19,7 @@
   const top=document.querySelector('.topbar')||bar.parentNode;
   if(!Array.from((top&&top.children)||[]).some(c=>c&&c.id==='prodVer')){
     const v=document.createElement('span');
-    v.id='prodVer';v.textContent='V0.1.56';v.title='Version produit';
+    v.id='prodVer';v.textContent='V0.1.57';v.title='Version produit';
     const hints=document.querySelector('.hints');
     if(top&&hints&&hints.parentNode===top)top.insertBefore(v,hints);
     else if(top)top.appendChild(v);
@@ -105,13 +105,15 @@
     [null,'Exporter'],
     ['btnExportStep','\u{2B07}','STEP — géométrie exacte'],
     ['btnExportStl','\u{2B07}','STL — maillage'],
-    ['btnExportObj','\u{2B07}','OBJ — maillage']
+    ['btnExportObj','\u{2B07}','OBJ — maillage'],
+    ['btnExportBundle','\u{2B07}','.miniFusion — document, trajectoires et sources']
   ],'\u{1F4BE}');
-  const gProj=groupe('Projet','Nouveau modèle, sauvegarde, ouverture',[
-    ['btnNew','\u{1F195}','Nouveau modèle'],
-    ['btnSave','\u{1F4BE}','Sauvegarder'],
-    ['btnSaveAs','\u{1F4BE}','Sauvegarder sous…'],
-    ['btnLoad','\u{1F4C2}','Ouvrir un projet…']
+  // 2026-10-16-018 : les plans sont enregistrés en ligne (src/96-plans-en-ligne.js).
+  const gProj=groupe('Projet','Nouveau plan, enregistrement, import d\'un fichier',[
+    ['btnNew','\u{1F195}','Nouveau plan'],
+    ['btnSave','\u{1F4BE}','Enregistrer maintenant'],
+    ['btnSaveAs','\u{1F4BE}','Enregistrer une copie'],
+    ['btnLoad','\u{1F4C2}','Importer un fichier .miniFusion…']
   ],'\u{1F4C1}');
 
   // Réunion : à la construction des groupes, chaque bouton a DÉJÀ quitté la barre pour

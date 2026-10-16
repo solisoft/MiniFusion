@@ -14,7 +14,7 @@
 :root{--bg:#1c1c1e;--surface:rgba(44,44,46,.88);--primary:#0a84ff;--glow:rgba(10,132,255,.35);--accent:#30d158;--warn:#ffd60a;--text:#f5f5f7;--muted:#98989d;--border:rgba(255,255,255,.09);--radius:12px}
 *{box-sizing:border-box}body{font-family:-apple-system,'SF Pro Display',Inter,sans-serif;background:radial-gradient(1200px 500px at 50% -10%,rgba(10,132,255,.12),transparent),var(--bg);color:var(--text);margin:0;padding:10px 12px;height:100vh;overflow:hidden;display:flex;flex-direction:column}
 .topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 14px;margin-bottom:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}
-.brand{font-weight:700;font-size:1.05rem}.brand .tag{font-size:.65rem;background:linear-gradient(135deg,#0a84ff,#5e5ce6);padding:3px 9px;border-radius:20px;margin-left:8px;vertical-align:middle}
+.brand{font-weight:700;font-size:1.05rem}.brand a{color:inherit;text-decoration:none}.brand a:hover{color:var(--primary)}.brand #mfSaveState[data-state=saving],.brand #mfSaveState[data-state=pending]{background:#3a3a3c}.brand #mfSaveState[data-state=saved]{background:linear-gradient(135deg,#248a3d,#30d158)}.brand #mfSaveState[data-state=offline],.brand #mfSaveState[data-state=conflict]{background:#b25000}.brand .tag{font-size:.65rem;background:linear-gradient(135deg,#0a84ff,#5e5ce6);padding:3px 9px;border-radius:20px;margin-left:8px;vertical-align:middle}
 .tb{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.sep{width:1px;height:26px;background:var(--border)}
 button,select{font-family:inherit;font-size:.83rem;font-weight:500;padding:8px 13px;border-radius:8px;cursor:pointer;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:var(--text)}
 button:hover,select:hover{border-color:var(--primary);box-shadow:0 0 12px var(--glow)}
@@ -117,7 +117,7 @@ input[type=range]{accent-color:var(--primary);width:100%}
 </head>
 <body>
 <header class="topbar">
-  <div class="brand">◧ MiniFusion <span class="tag">MVP paramétrique</span> <span class="tag" id="appVer" title="Version du code (anti-cache)">…</span></div>
+  <div class="brand"><a id="mfPlans" href="/plans" title="Mes plans (le plan courant est enregistré en ligne)">◧ MiniFusion</a> <span class="tag" id="mfSaveState" data-state="" title="Enregistrement en ligne">…</span> <span class="tag" id="appVer" title="Version du code (anti-cache)">…</span></div>
   <div class="tb">
     <button id="btnSketch" class="primary" title="Nouvelle esquisse — sur la face sélectionnée si une face est sélectionnée, sinon sur le plan XY (double-clic sur un plan de l'arborescence = esquisse dessus)">✏️ Esquisse</button>
     <button id="btnExtrude" title="Extruder une esquisse — raccourci E (sens, étendue et distance dans les propriétés ; flèche )">🧱 Extrusion</button>
@@ -136,6 +136,7 @@ input[type=range]{accent-color:var(--primary);width:100%}
     <button id="btnSave" title="Sauvegarder (local)">💾 Sauver</button>
     <button id="btnSaveAs" title="Sauver sous… (.minifusion.json)">💾⏏️ Sous…</button>
     <button id="btnLoad" title="Ouvrir un projet">📂 Ouvrir</button>
+    <button id="btnExportBundle" title="Exporter un fichier .miniFusion (document + trajectoires + sources)">📤 .miniFusion</button>
     <input type="file" id="fileProj" accept=".json,.minifusion.json" style="display:none">
     <input type="file" id="fileImport" accept=".step,.stp,.STEP,.STP,.stl,.STL" style="display:none">
   </div>

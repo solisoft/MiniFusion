@@ -1,0 +1,33 @@
+<main class="flex-1 flex items-start justify-center px-5 py-10 sm:py-16">
+    <div class="sheet w-full max-w-md p-7 sm:p-9">
+        <h1 class="text-4xl">Créer un compte</h1>
+        <p class="mt-2 text-graphite">Vos plans sont enregistrés en ligne et vous suivent d'un poste à l'autre.</p>
+
+        <form method="post" action="/signup" class="mt-7 space-y-5" novalidate>
+            <%- csrf_field() %>
+            <div class="field">
+                <label for="name">Nom</label>
+                <input id="name" name="name" autocomplete="name" required value="<%= @form["name"] %>"
+                       <% if @errors["name"] %>aria-invalid="true" aria-describedby="name-err"<% end %>>
+                <% if @errors["name"] %><p class="err" id="name-err">Le nom <%= @errors["name"] %>.</p><% end %>
+            </div>
+            <div class="field">
+                <label for="email">E-mail</label>
+                <input id="email" name="email" type="email" autocomplete="email" required value="<%= @form["email"] %>"
+                       <% if @errors["email"] %>aria-invalid="true" aria-describedby="email-err"<% end %>>
+                <% if @errors["email"] %><p class="err" id="email-err">L'e-mail <%= @errors["email"] %>.</p><% end %>
+            </div>
+            <div class="field">
+                <label for="password">Mot de passe</label>
+                <input id="password" name="password" type="password" autocomplete="new-password" required minlength="8"
+                       aria-describedby="password-hint<% if @errors["password"] %> password-err<% end %>"
+                       <% if @errors["password"] %>aria-invalid="true"<% end %>>
+                <p class="text-sm text-graphite mt-1" id="password-hint">8 caractères au moins.</p>
+                <% if @errors["password"] %><p class="err" id="password-err">Le mot de passe <%= @errors["password"] %>.</p><% end %>
+            </div>
+            <button type="submit" class="btn btn-solid w-full">Créer mon compte</button>
+        </form>
+
+        <p class="mt-7 text-graphite">Déjà inscrit ? <a href="/login">Se connecter</a></p>
+    </div>
+</main>

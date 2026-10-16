@@ -3964,3 +3964,15 @@ Vérifié au navigateur (arbre déplié et replié ; clic sur le cylindre R28 d'
 - `threejs/`, `occt/` et `shortcuts.js` passent dans `public/` ; `opencascade.full.wasm` (50 Mo, référencé nulle part) est retiré. Les URL du noyau sont absolues et versionnées (`/occt/…?v=APP_VER`, `src/96-noyau-occt-tiers-lgpl.js`) : Soli sert `public/` en cache « immutable ».
 - soli-proxy : `proxy/sites/fusion.solisoft.test` → ce dépôt, `app.infos` (`soli serve . --dev`, santé `/health`).
 Vérifié au navigateur (`https://fusion.solisoft.test/editor` : OCCT prêt, aucune erreur console ; wasm servi en `application/wasm`). Migration : `APP_VER` → `2026-10-16-017` ; badge **V0.1.55 → V0.1.56**.
+
+## 2026-10-16-018 · V0.1.57 — Comptes, plans en ligne, landing page, compte de démo
+- **Demande** : une vraie app côté serveur — inscription / connexion, plans sauvegardés en ligne, belle landing page, compte de démo.
+- **Comptes** : `/signup`, `/login`, `/logout` (mot de passe argon2, 8 caractères au moins, session régénérée à la connexion). L'éditeur exige un compte : `/editor/:id` n'ouvre que les plans de son propriétaire (ceux d'un autre : 404).
+- **Mes plans** (`/plans`) : vignette, désignation, date, taille ; nouveau plan, dupliquer, supprimer.
+- **Enregistrement en ligne** (`src/96-plans-en-ligne.js`, API `PUT /api/plans/:id`) : toute modification part au serveur après 2,5 s ; état « Modifié / Enregistrement… / Enregistré / Hors ligne » à côté du logo. Verrou optimiste : si le plan a été enregistré ailleurs (autre onglet, autre poste), le serveur répond 409 et l'éditeur demande quelle version garder. Brouillon local par plan, repris à la réouverture s'il est plus récent. L'ouverture seule n'enregistre rien.
+- **Imports STEP/STL** : leurs octets d'origine (clé `impsrc:…`) sont envoyés une fois (`/api/sources/:id`) et partagés entre les plans de l'utilisateur ; à l'ouverture sur un autre poste, l'import se rejoue depuis le serveur. Les parcours FAO restent en cache local (recalculables).
+- **Projet** : « Enregistrer maintenant », « Enregistrer une copie », « Importer un fichier .miniFusion… » (chemin des anciens fichiers vers le compte) ; « Fichier › .miniFusion » exporte toujours le fichier autonome.
+- **Vignettes** : capturées à l'enregistrement ; un plan sans vignette en reçoit une dès que la pièce est affichée (image unie refusée).
+- **Landing** (`/`) : vocabulaire de la mise en plan (feuille, cartouche, repères) ; captures réelles de l'éditeur produites par `bin/landing-images` (Chrome headless via `soli test --browser`), extrait réel du G-code de la cavité.
+- **Compte de démo** : `db/seeds/demo.sl` (7 pièces d'`Exemples/`, idempotent), bouton « Essayer la démo » sur la landing et la page de connexion.
+Vérifié au navigateur (démo → Mes plans → Crochet : vignette, renommage enregistré, conflit 409 résolu, import STEP rejoué depuis le serveur après purge du cache local) et par curl (401 / 404 / 409 / 422). Suite Node 96/96. Migration : `APP_VER` → `2026-10-16-018` ; badge **V0.1.56 → V0.1.57**.

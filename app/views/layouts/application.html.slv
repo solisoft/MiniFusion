@@ -1,13 +1,46 @@
 <!DOCTYPE html>
-<html lang="fr" class="h-full">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= @title %> · MiniFusion</title>
-    <meta name="description" content="<%= @description ?? "CAO paramétrique et FAO dans le navigateur." %>">
+    <meta name="description" content="<%= @description ?? "Conception paramétrique et usinage, dans le navigateur." %>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MiniFusion">
+    <meta property="og:title" content="<%= @title %> · MiniFusion">
+    <meta property="og:description" content="<%= @description ?? "Conception paramétrique et usinage, dans le navigateur." %>">
+    <meta property="og:image" content="/images/og.jpg">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="stylesheet" href="<%= public_path("css/application.css") %>">
 </head>
-<body class="min-h-full antialiased">
+<body class="min-h-screen flex flex-col">
+    <header class="px-5 sm:px-8 py-4 flex items-center justify-between gap-4">
+        <a href="/" class="flex items-center gap-2 no-underline text-ink font-cond font-semibold text-xl">
+            <span aria-hidden="true" class="text-2xl leading-none">◧</span> MiniFusion
+        </a>
+        <nav class="flex items-center gap-5">
+            <% viewer = current_viewer() %>
+            <% if viewer %>
+                <a href="/plans">Mes plans</a>
+                <form method="post" action="/logout">
+                    <%- csrf_field() %>
+                    <button class="btn-quiet" type="submit">Se déconnecter</button>
+                </form>
+            <% else %>
+                <a href="/login">Se connecter</a>
+                <a href="/signup" class="btn btn-line !py-1.5 !px-3.5 !text-base">Créer un compte</a>
+            <% end %>
+        </nav>
+    </header>
+
     <%= yield %>
+
+    <footer class="mt-auto px-5 sm:px-8 py-6 text-sm text-graphite flex flex-wrap gap-x-6 gap-y-1 justify-between">
+        <span>MiniFusion — conception et fabrication dans le navigateur.</span>
+        <span>Noyau géométrique : Open CASCADE Technology (LGPL 2.1).</span>
+    </footer>
 </body>
 </html>

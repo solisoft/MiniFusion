@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Regenerates the landing page's images (public/images/landing/) from the real
+# editor: headless Chrome through `soli test --browser`, then WebP via ImageMagick.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+out=public/images/landing
+MF_CAPTURE=1 soli test tests/browser/captures_spec.sl --browser --no-coverage
+for f in "$out"/*.png; do
+  name="${f%.png}"
+  magick "$f" -resize 2400x -quality 80 "$name-2400.webp"
+  magick "$f" -resize 1200x -quality 80 "$name-1200.webp"
+  rm "$f"
+done
+magick "$out/usinage-2400.webp" -resize 1200x630^ -gravity center -extent 1200x630 -quality 85 public/images/og.jpg
+ls -la "$out"
