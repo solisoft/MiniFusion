@@ -35,7 +35,10 @@ const chunks=parts.map(f=>{
 const out=(head+'\n<script>\n'+chunks.join('\n\n')+'\n</script>\n'+tail).replace(/\r\n/g,'\n').replace(/\n/g,'\r\n');
 
 if(process.argv.indexOf('--check')>=0){
-  if(out!==old){
+  // Fins de ligne ignorées : le dépôt stocke le livrable en LF (.gitattributes), un
+  // checkout Linux (CI) le rend en LF quand build.js écrit en CRLF.
+  const lf=t=>t.replace(/\r\n/g,'\n');
+  if(lf(out)!==lf(old)){
     console.error('✗ fusion_mvp.html est PÉRIMÉ :_src/ a changé sans rebuild.');
     console.error('  Lancez : node build.js');
     process.exit(1);
