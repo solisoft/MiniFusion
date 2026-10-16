@@ -1,0 +1,319 @@
+# Vérifier à chaque push, et déployer minifusion.solisoft.net quand main est vert.
+# Même contrat serveur que ../grc/.github/workflows/ci.yml (soli-proxy) :
+#
+#   1. `porte`  — lint, specs de requêtes contre une vraie SoliDB, livrable à jour,
+#                 suite de non-régression CAO (Node, en attendant son portage vers
+#                 `soli test --browser`), puis le site démarre et répond /up.
+#                 Toutes les branches et les PR.
+#   2. `deploy` — seulement sur main, seulement si la porte est verte :
+#                 a. rsync du dépôt dans <sites_dir>/<site_dir>/ — ce dossier et aucun autre ;
+#                 b. soli db:migrate up, puis le seed du compte de démo (idempotent) ;
+#                 c. soli-proxy deploy : démarre le slot au repos, attend, bascule le
+#                    trafic, arrête l'ancien.
+#
+# Le dossier du site existe déjà sur le serveur avec son app.infos et son .env :
+# ce workflow ne crée rien et ne touche à aucun autre dossier.
+name: Vérification et déploiement
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+env:
+  # La version de la production (`soli --version` sur le serveur) : la porte
+  # vérifie avec le binaire PUBLIÉ que la production exécute.
+  SOLI_VERSION: "2.27.1"
+  SOLIDB_VERSION: "2.3.1"
+
+jobs:
+  porte:
+    # Le runner maison (conteneur `runner-minifusion` de ~/gh-runner sur
+    # rocky-build), comme grc : aucune minute GitHub consommée. Ubuntu 24.04 neuf
+    # à chaque job, en réseau propre : son 6745 n'est pas le SoliDB de la machine.
+    runs-on: [self-hosted, linux, x64, docker]
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Installer soli et solidb (versions épinglées)
+        run: |
+          set -euo pipefail
+          fetch() {
+            local name="$1" repo="$2" want="$3" tmp got
+            tmp="$(mktemp -d)"
+            curl -fsSL "https://github.com/$repo/releases/download/v$want/$name-linux-amd64.tar.gz" \
+              -o "$tmp/pkg.tar.gz"
+            tar -xzf "$tmp/pkg.tar.gz" -C "$tmp"
+            sudo install -m 0755 "$(find "$tmp" -type f -name "$name" -perm -u+x | head -1)" \
+              "/usr/local/bin/$name"
+            rm -rf "$tmp"
+            got="$("$name" --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+            [ "$got" = "$want" ] || { echo "$name : $got installé, $want attendu" >&2; exit 1; }
+            echo "$name $got"
+          }
+          fetch soli   solisoft/soli_lang "$SOLI_VERSION"
+          fetch solidb solisoft/solidb    "$SOLIDB_VERSION"
+
+      # .env.test n'est pas versionné (il porte les accès du poste) : la CI écrit
+      # le sien, pour la SoliDB jetable démarrée juste après.
+      - name: Écrire .env.test
+        run: |
+          cat > .env.test <<'EOF'
+          APP_ENV=test
+          SOLIDB_HOST=http://127.0.0.1:6745
+          SOLIDB_DATABASE=minifusion
+          SOLIDB_USERNAME=admin
+          SOLIDB_PASSWORD=ci-minifusion
+          SOLI_DISABLE_CSRF=true
+          SOLI_MAX_BODY_SIZE=67108864
+          APP_URL=http://127.0.0.1:19555
+          EOF
+
+      # SoliDB crée son compte admin au premier démarrage avec SOLIDB_ADMIN_PASSWORD.
+      - name: Démarrer SoliDB
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/solidb-data"
+          SOLIDB_ADMIN_PASSWORD=ci-minifusion solidb --host 127.0.0.1 --port 6745 \
+            --data-dir "$RUNNER_TEMP/solidb-data" > "$RUNNER_TEMP/solidb.log" 2>&1 &
+          for i in $(seq 1 40); do
+            code="$(curl -s -o /dev/null -w '%{http_code}' -m 2 http://127.0.0.1:6745/_api/databases || true)"
+            [ "${code:-000}" != "000" ] && { echo "SoliDB répond (HTTP $code)"; exit 0; }
+            sleep 0.5
+          done
+          echo "SoliDB n'a pas démarré :" >&2
+          tail -40 "$RUNNER_TEMP/solidb.log" >&2
+          exit 1
+
+      - name: Lint
+        run: soli lint app config db
+
+      # Les specs de requêtes (comptes, plans, API, mot de passe oublié). Les
+      # specs navigateur (tests/browser/) sont mises de côté sans --browser.
+      - name: Specs
+        run: soli test --no-coverage
+        env:
+          APP_ENV: test
+
+      # Tailwind est compilé par `soli serve --dev` sur le poste et le résultat
+      # est versionné ; la production sert public/ tel quel.
+      - name: Le CSS compilé est versionné
+        run: test -s public/css/application.css
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # fusion_mvp.html n'est plus servi (l'app assemble src/ elle-même), mais la
+      # suite Node le lit : il doit refléter src/.
+      - name: Livrable de test à jour
+        run: node build.js --check
+
+      # La non-régression du noyau CAO : vm + vrai OCCT (public/occt). Sortie 0 = vert.
+      - name: Suite CAO (Node)
+        run: node tests/run.cjs
+
+      # Le site démarre comme sur le serveur et répond /up : une vue manquante ou
+      # une route mal déclarée échoue ici plutôt qu'en production.
+      - name: Le site démarre et répond /up
+        env:
+          APP_ENV: test
+        run: |
+          set -euo pipefail
+          soli db:migrate up
+          soli serve . --port 19555 --workers 1 > /tmp/boot.log 2>&1 &
+          pid=$!
+          code=000
+          for i in $(seq 1 45); do
+            code="$(curl -s -o /dev/null -w '%{http_code}' -m 2 http://127.0.0.1:19555/up || echo 000)"
+            [ "$code" = "200" ] && break
+            kill -0 $pid 2>/dev/null || { echo "le serveur s'est arrêté avant de répondre" >&2; break; }
+            sleep 1
+          done
+          home="$(curl -s -o /dev/null -w '%{http_code}' -m 5 http://127.0.0.1:19555/ || echo 000)"
+          kill -TERM $pid 2>/dev/null || true
+          wait $pid 2>/dev/null || true
+          if [ "$code" != "200" ] || [ "$home" != "200" ]; then
+            echo "/up a répondu $code et / $home, 200 attendus :" >&2
+            tail -40 /tmp/boot.log >&2
+            exit 1
+          fi
+          echo "/up -> 200, / -> 200"
+
+  deploy:
+    name: déployer minifusion.solisoft.net
+    needs: porte
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: [self-hosted, linux, x64, docker]
+    # Deux pushes rapprochés ne s'entrelacent pas au milieu d'un rsync, et un
+    # déploiement en cours n'est jamais annulé (arbre à moitié copié).
+    concurrency:
+      group: deploy-minifusion
+      cancel-in-progress: false
+    environment:
+      name: production
+      url: https://${{ vars.DEPLOY_DOMAIN || 'minifusion.solisoft.net' }}
+    env:
+      HOST: ${{ secrets.DEPLOY_HOST }}
+      USER: ${{ vars.DEPLOY_USER || 'rocky' }}
+      SITES_DIR: ${{ vars.DEPLOY_SITES_DIR || '/home/rocky/sites' }}
+      PROXY_CONF: ${{ vars.DEPLOY_PROXY_CONF || '/home/rocky/proxy.conf' }}
+      # DOMAIN : ce à quoi le site répond (sonde HTTPS finale). SITE_DIR : le
+      # dossier sous sites/. APP : le `name` de l'app.infos du serveur.
+      DOMAIN: ${{ vars.DEPLOY_DOMAIN || 'minifusion.solisoft.net' }}
+      SITE_DIR: ${{ vars.DEPLOY_SITE_DIR || vars.DEPLOY_DOMAIN || 'minifusion.solisoft.net' }}
+      APP: ${{ vars.DEPLOY_APP || 'minifusion.solisoft.net' }}
+      # Les pids des processus qui servent CE site (reconnus à leur ligne de
+      # commande et à leur dossier, pas au nom du binaire — voir grc).
+      PIDS: |
+        for x in $(pgrep -f -- " serve \. --port" 2>/dev/null); do
+          if [ "$(readlink /proc/$x/cwd 2>/dev/null)" = "${{ vars.DEPLOY_SITES_DIR || '/home/rocky/sites' }}/${{ vars.DEPLOY_SITE_DIR || vars.DEPLOY_DOMAIN || 'minifusion.solisoft.net' }}" ]; then
+            echo $x
+          fi
+        done
+      PROBE: |
+        p=$(for x in $(pgrep -f -- " serve \. --port" 2>/dev/null); do
+              if [ "$(readlink /proc/$x/cwd 2>/dev/null)" = "${{ vars.DEPLOY_SITES_DIR || '/home/rocky/sites' }}/${{ vars.DEPLOY_SITE_DIR || vars.DEPLOY_DOMAIN || 'minifusion.solisoft.net' }}" ]; then
+                tr "\0" "\n" < /proc/$x/cmdline | grep -A1 -- "--port" | tail -1
+              fi
+            done | sort -u | tail -1)
+        [ -n "$p" ] || { echo 000; exit 0; }
+        curl -s -o /dev/null -w "%{http_code}" -m 5 "http://127.0.0.1:$p/up"
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Le déploiement est-il configuré ?
+        id: cfg
+        run: |
+          set -euo pipefail
+          if [ -z "${HOST:-}" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "DEPLOY_HOST n'est pas défini : rien n'est déployé."
+            echo "Secrets attendus : DEPLOY_HOST, SSH_DEPLOY_KEY, SSH_KNOWN_HOSTS."
+            exit 0
+          fi
+          echo "configured=true" >> "$GITHUB_OUTPUT"
+          echo "Cible : $USER@$HOST:$SITES_DIR/$SITE_DIR  (domaine $DOMAIN, app proxy $APP)"
+
+      - name: Préparer SSH
+        if: steps.cfg.outputs.configured == 'true'
+        run: |
+          set -euo pipefail
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          # known_hosts plutôt que StrictHostKeyChecking=no sur le canal du code de prod.
+          printf '%s\n' "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Le site existe sur le serveur
+        if: steps.cfg.outputs.configured == 'true'
+        run: |
+          set -euo pipefail
+          ssh "$USER@$HOST" "test -f '$SITES_DIR/$SITE_DIR/app.infos' && test -f '$SITES_DIR/$SITE_DIR/.env'" \
+            || { echo "$SITES_DIR/$SITE_DIR doit contenir app.infos et .env" >&2; exit 1; }
+
+      # --delete-delay : ce qui quitte le dépôt quitte le serveur. Les exclusions
+      # protègent ce qui appartient au serveur — secrets (.env*), app.infos (porte
+      # ici le domaine .test), storage/ (sources STEP/STL des utilisateurs : sans
+      # cette exclusion, --delete les effacerait) — et écartent ce qui ne sert pas
+      # en production : anciens livrables (Backup/, 200 Mo), le bundle d'exemple de
+      # 34 Mo (le seed de démo lit les .json), l'outillage.
+      - name: Synchroniser les fichiers
+        if: steps.cfg.outputs.configured == 'true'
+        run: |
+          set -euo pipefail
+          rsync -rlz --stats --delete-delay --delay-updates \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='.claude/' \
+            --exclude='node_modules/' \
+            --exclude='.env' \
+            --exclude='.env.*' \
+            --exclude='app.infos' \
+            --exclude='storage/' \
+            --exclude='restart.txt' \
+            --exclude='tmp/' \
+            --exclude='coverage/' \
+            --exclude='run/' \
+            --exclude='Backup/' \
+            --exclude='Exemples/*.miniFusion' \
+            --exclude='Exemples/cav.txt' \
+            --exclude='_probe_style.*' \
+            --exclude='*.log' \
+            --exclude='*.pid' \
+            ./ "$USER@$HOST:$SITES_DIR/$SITE_DIR/"
+
+      - name: Comparer la version de Soli du serveur
+        if: steps.cfg.outputs.configured == 'true'
+        run: |
+          set -euo pipefail
+          installed="$(ssh "$USER@$HOST" 'soli --version' | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+          echo "serveur : $installed — épinglée : $SOLI_VERSION"
+          if [ "$installed" != "$SOLI_VERSION" ]; then
+            echo "::warning title=Écart de version Soli::Le serveur tourne sous Soli $installed ; la porte a vérifié $SOLI_VERSION."
+          fi
+
+      - name: Migrations et compte de démo
+        if: steps.cfg.outputs.configured == 'true'
+        run: ssh "$USER@$HOST" "set -e; cd '$SITES_DIR/$SITE_DIR' && soli db:migrate up && soli db:seed . db/seeds/demo.sl"
+
+      # `soli-proxy deploy` plutôt que `touch restart.txt` : un code de sortie et une
+      # raison, là où le fichier déclencheur échoue en silence.
+      - name: Bascule blue-green
+        if: steps.cfg.outputs.configured == 'true'
+        run: |
+          set -euo pipefail
+          before="$(ssh "$USER@$HOST" "$PIDS")"
+          echo "processus avant : ${before:-aucun}"
+          echo "$before" > /tmp/pids-before
+          if ! ssh "$USER@$HOST" "soli-proxy deploy -c '$PROXY_CONF' '$APP' 2>&1"; then
+            echo "La bascule a échoué. ssh $USER@$HOST 'soli-proxy logs -c $PROXY_CONF $APP'" >&2
+            exit 1
+          fi
+
+      # Un 200 de l'ancien slot prouverait que le site répond, pas qu'il répond
+      # avec ce qui vient d'arriver : on attend un NOUVEAU processus.
+      - name: Le nouveau slot répond
+        if: steps.cfg.outputs.configured == 'true'
+        run: |
+          set -euo pipefail
+          before="$(cat /tmp/pids-before)"
+          for i in $(seq 1 30); do
+            sleep 3
+            now="$(ssh "$USER@$HOST" "$PIDS")"
+            fresh="$(comm -13 <(echo "$before" | sort) <(echo "$now" | sort) | tr -d ' ')"
+            if [ -n "$fresh" ]; then
+              code="$(ssh "$USER@$HOST" "$PROBE" 2>/dev/null | tail -1 || echo 000)"
+              echo "essai $i : nouveau processus $fresh, /up -> $code"
+              [ "$code" = "200" ] && { echo "Le nouveau slot répond."; exit 0; }
+            else
+              echo "essai $i : pas encore de nouveau processus"
+            fi
+          done
+          echo "Aucun nouveau slot n'a répondu 200 sur /up en 90 s." >&2
+          exit 1
+
+      # Après une bascule, le proxy peut encore répartir sur les deux ports alors
+      # qu'un seul processus tourne (421 une fois sur deux) : on remonte les deux.
+      - name: Remonter les deux slots
+        if: steps.cfg.outputs.configured == 'true'
+        run: ssh "$USER@$HOST" "soli-proxy restart -c '$PROXY_CONF' '$APP'"
+
+      - name: Le site répond à travers le proxy
+        if: steps.cfg.outputs.configured == 'true'
+        run: |
+          set -euo pipefail
+          want=12
+          probe="for i in \$(seq 1 $want); do curl -sk -m 8 --resolve '$DOMAIN:443:127.0.0.1' -o /dev/null -w '%{http_code} ' 'https://$DOMAIN/up'; done"
+          for attempt in 1 2 3 4 5; do
+            sleep 4
+            codes="$(ssh "$USER@$HOST" "$probe" 2>/dev/null || true)"
+            ok="$(printf '%s' "$codes" | tr ' ' '\n' | grep -c '^200$' || true)"
+            echo "essai $attempt : $codes(${ok:-0}/$want à 200)"
+            [ "${ok:-0}" -eq "$want" ] && { echo "$want requêtes sur $want à 200."; exit 0; }
+          done
+          echo "Le site n'a pas répondu $want/$want à travers le proxy." >&2
+          exit 1
